@@ -1,6 +1,7 @@
 package kr.co.backend.service;
 
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -21,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @Getter @Setter
@@ -38,12 +40,12 @@ public class OAuthService {
     private String authorizationGrantType;
     private String redirectUri;
 
-    public String processOAuthLogin(String code, String provider) {
-        String accessToken = getAccessTokenFromNaver(code);
+    public String processOAuthLogin(String code, String provider, String redirectUri) {
+        String accessToken = getAccessTokenFromNaver(code, redirectUri);
         return processNaverUser(accessToken);
     }
 
-    private String getAccessTokenFromNaver(String code) {
+    private String getAccessTokenFromNaver(String code, String redirectUri) {
         RestTemplate rt = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -64,17 +66,21 @@ public class OAuthService {
                 String.class
         );
 
-        // JSON 파싱하여 액세스 토큰 추출 (Jackson 또는 JSON Simple 사용)
-        // 예: { "access_token": "AAA...", "token_type": "bearer", "expires_in": "3600", ... }
-        // 여기서는 간단하게 문자열을 추출하는 예시만 보여줌
-        String accessToken = extractAccessToken(response.getBody());
-        return accessToken;
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Failed to get access token from Naver: " + response.getBody());
+        }
+
+        return extractAccessToken(response.getBody());
     }
 
     private String extractAccessToken(String responseBody) {
-        // JSON 파싱하여 액세스 토큰을 추출하는 로직 추가
-        // 예: { "access_token": "AAA...", "token_type": "bearer", "expires_in": "3600", ... }
-        return "extracted_access_token"; // 실제로는 JSON 파싱 후 반환
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(responseBody);
+            return rootNode.path("access_token").asText();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract access token", e);
+        }
     }
 
     private String processNaverUser(String accessToken) {
@@ -91,22 +97,48 @@ public class OAuthService {
                 String.class
         );
 
-        // JSON 파싱하여 사용자 정보 추출 (Jackson 또는 JSON Simple 사용)
-        // 여기서는 간단하게 문자열을 추출하는 예시만 보여줌
-        // 예: { "response": { "id": "12345", "email": "email@example.com", "name": "홍길동", ... } }
-        String userInfo = response.getBody();
-        String userName = extractUserName(userInfo);
-        String userEmail = extractUserEmail(userInfo);
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Failed to get user info from Naver: " + response.getBody());
+        }
 
-        // 사용자 정보 처리 로직 (예: DB 저장)
-        User user = new User();
-        user.setName(userName);
-        user.setEmail(userEmail);
-        user.setOauthProvider("naver");
-        userRepository.save(user);
+        return parseUser(response.getBody());
+    }
 
-        // JWT 토큰 생성 및 반환
-        String jwtToken = Jwts.builder()
+    private String parseUser(String userInfo) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(userInfo);
+            JsonNode responseNode = rootNode.path("response");
+
+            String userName = responseNode.path("name").asText();
+            String userEmail = responseNode.path("email").asText();
+
+            Optional<User> existingUser = userRepository.findByEmail(userEmail);
+            User user;
+            if (existingUser.isPresent()) {
+                user = existingUser.get();
+                user.setName(userName); // 필요에 따라 사용자 정보를 업데이트합니다.
+                user.setOauthProvider("naver");
+                userRepository.save(user); // 업데이트된 정보를 저장합니다.
+            } else {
+                user = new User();
+                user.setName(userName);
+                user.setEmail(userEmail);
+                user.setOauthProvider("naver");
+                userRepository.save(user);
+            }
+
+            return generateJwtToken(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse user info", e);
+        }
+    }
+
+    private String generateJwtToken(User user) {
+        // 디버깅 로그 추가
+        System.out.println("generateJwtToken 메서드 호출됨");
+
+        return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("name", user.getName())
                 .claim("provider", user.getOauthProvider())
@@ -114,17 +146,5 @@ public class OAuthService {
                 .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1시간 후 만료
                 .signWith(key)
                 .compact();
-
-        return jwtToken;
-    }
-
-    private String extractUserName(String userInfo) {
-        // JSON 파싱하여 사용자 이름을 추출하는 로직 추가
-        return "extracted_user_name"; // 실제로는 JSON 파싱 후 반환
-    }
-
-    private String extractUserEmail(String userInfo) {
-        // JSON 파싱하여 사용자 이메일을 추출하는 로직 추가
-        return "extracted_user_email"; // 실제로는 JSON 파싱 후 반환
     }
 }
