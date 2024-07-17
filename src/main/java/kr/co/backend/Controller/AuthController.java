@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -14,10 +16,28 @@ public class AuthController {
     @Autowired
     private OAuthService oAuthService;
 
-    @PostMapping("/oauth")
-    public ResponseEntity<?> handleOAuthLogin(@RequestBody OAuthRequest request) {
-        String token = oAuthService.processOAuthLogin(request.getCode(), request.getProvider(), request.getRedirectUri());
-        return ResponseEntity.ok(new OAuthResponse(token));
+    @PostMapping("/api/oauth/naver")
+    public Map<String, String> naverLogin(@RequestBody Map<String, String> body) {
+        String code = body.get("code");
+        String state = body.get("state");
+        String token = oAuthService.processOAuthLogin(code, "naver", state);
+        return Map.of("token", token);
+    }
+
+    @PostMapping("/api/oauth/kakao")
+    public Map<String, String> kakaoLogin(@RequestBody Map<String, String> body) {
+        String code = body.get("code");
+        String state = body.get("state");
+        String token = oAuthService.processOAuthLogin(code, "kakao", state);
+        return Map.of("token", token);
+    }
+
+    @PostMapping("/api/oauth/google")
+    public Map<String, String> googleLogin(@RequestBody Map<String, String> body) {
+        String code = body.get("code");
+        String state = body.get("state");
+        String token = oAuthService.processOAuthLogin(code, "google", state);
+        return Map.of("token", token);
     }
 }
 

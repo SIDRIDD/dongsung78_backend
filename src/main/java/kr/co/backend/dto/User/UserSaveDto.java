@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Setter
 public class UserSaveDto {
 
-    private String userId;
+    private Integer userId;
 
     private String name;
 

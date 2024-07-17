@@ -16,7 +16,7 @@ public class ContactGetAllDto {
 
     private String description;
 
-    private String userId;
+    private Integer userId;
 
 
 }

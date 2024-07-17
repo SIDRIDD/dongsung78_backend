@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/tete
+    url: jdbc:mariadb://localhost:3306/dongsung
     username: root
-    password: 1234
+    password: 641714
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,9 +16,7 @@ spring:
           naver:
             client-id: 'FvadT3Ycf51hJ7DHEqk2'
             client-secret: 'jF2MwAHiTa'
-            scope:
-              - name
-              - email
+            scope: name,email
             client-name: Naver
             authorization-grant-type: authorization_code
             redirect-uri: http://localhost:8080/login/oauth2/code/naver

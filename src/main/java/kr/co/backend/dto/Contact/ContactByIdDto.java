@@ -17,7 +17,7 @@ public class ContactByIdDto {
 
     private String description;
 
-    private String userId;
+    private Integer userId;
 
     private LocalDateTime createdAt;
 

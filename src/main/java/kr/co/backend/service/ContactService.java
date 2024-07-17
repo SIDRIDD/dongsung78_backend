@@ -33,7 +33,7 @@ public class ContactService {
                     result.get(0, Long.class),
                     result.get(1, String.class),
                     result.get(2, String.class),
-                    result.get(3, String.class)
+                    result.get(3, Integer.class)
             );
 
             return contactGetAllDto;
@@ -52,7 +52,7 @@ public class ContactService {
                 results.getId(),
                 results.getTitle(),
                 results.getDescription(),
-                results.getUser().getName(),
+                results.getUser().getUserId(),
                 results.getCreatedAt()
         );
 
