@@ -29,3 +29,7 @@ spring:
             user-name-attribute: response
 cors:
   allowedOrigins: http://localhost:3000
+
+jwt:
+  secret: 6c6a4b2c6d4e7f7d2c6f7b8c7a6d6e5f7d2b7c5e4d3f2b6d7f2b4a6d5e3f2b6c6c6a4b2c6d4e7f7d2c6f7b8c7a6d6e5f7d2b7c5e4d3f2b6d7f2b4a6d5e3f2b6c
+  expiration: 86400000  # 1 day in milliseconds
