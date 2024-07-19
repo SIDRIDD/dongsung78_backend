@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/user/**", "/auth/**",
+                        .requestMatchers("/api/user/**", "/auth/api/oauth/**",
                                 "/api/category/**", "/api/contact/**", "/api/order/**",
                                 "/api/product/**").permitAll()
                         .anyRequest().authenticated()

@@ -1,5 +1,7 @@
 package kr.co.backend.service;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import kr.co.backend.domain.User;
 import kr.co.backend.dto.User.LoginRequestDto;
 import kr.co.backend.dto.User.LoginResponseDto;
@@ -18,7 +20,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+    public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         User user = userRepository.findByName(loginRequestDto.getUserName())
                 .orElseThrow(() -> new RuntimeException("존재 하지 않는 userName입니다."));
 
@@ -30,12 +32,22 @@ public class AuthService {
         // 예시로 token에 "dummy-token"을 반환합니다.
         String token = jwtUtil.generateToken(user.getEmail());
 
+        addTokenToCookie(response, token);
+
         LoginResponseDto responseDto = new LoginResponseDto();
         responseDto.setToken(token);
         responseDto.setEmail(user.getEmail());
-        responseDto.setName(user.getName());
         responseDto.setUserId(user.getUserId());
 
         return responseDto;
+    }
+
+    private void addTokenToCookie(HttpServletResponse response, String token) {
+        Cookie cookie = new Cookie("token", token);
+        cookie.setHttpOnly(true);
+//        cookie.setSecure(true); -> 배포 환경에서는 https 를 사용해야 하기 때문에 이걸 추가해야함
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60);
+        response.addCookie(cookie);
     }
 }
