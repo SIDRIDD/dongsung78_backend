@@ -30,14 +30,14 @@ public class AuthService {
 
         // 여기서 JWT 토큰을 생성하는 로직이 들어가야 합니다.
         // 예시로 token에 "dummy-token"을 반환합니다.
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user.getName());
 
         addTokenToCookie(response, token);
 
         LoginResponseDto responseDto = new LoginResponseDto();
         responseDto.setToken(token);
         responseDto.setEmail(user.getEmail());
-        responseDto.setUserId(user.getUserId());
+        responseDto.setUserName(user.getName());
 
         return responseDto;
     }

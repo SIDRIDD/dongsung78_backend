@@ -48,4 +48,24 @@ public class UserController {
         }
     }
 
+    @GetMapping("/check")
+    public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "token", required = false) String token) {
+        if (token != null && !token.isEmpty()) {
+            try {
+                String username = jwtUtil.validateToken(token);
+                User user = userRepository.findByName(username).orElseThrow(() -> new RuntimeException("존재하지 않는 ID입니다."));
+                if (user != null) {
+                    LoginResponseDto responseDto = new LoginResponseDto(token, user.getEmail(), user.getName());
+                    return ResponseEntity.ok(responseDto);
+                } else {
+                    return ResponseEntity.status(401).body("Invalid user");
+                }
+            } catch (Exception e) {
+                return ResponseEntity.status(401).body("Invalid token");
+            }
+        } else {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+    }
+
 }

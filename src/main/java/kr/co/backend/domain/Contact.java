@@ -1,5 +1,6 @@
 package kr.co.backend.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import kr.co.backend.domain.User;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor @NoArgsConstructor
 @Getter
@@ -14,7 +16,7 @@ import java.time.LocalDateTime;
 public class Contact {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     private String title;
 
@@ -33,6 +35,10 @@ public class Contact {
 
     @Column(nullable = false)
     private String status;
+
+    @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ContactComment> comments;
 
     @PrePersist
     protected void onCreate() {

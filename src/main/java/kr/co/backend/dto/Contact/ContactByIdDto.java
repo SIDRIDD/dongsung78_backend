@@ -6,19 +6,24 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
 public class ContactByIdDto {
-    private Long id;
+    private Integer id;
 
     private String title;
 
     private String description;
 
-    private Integer userId;
+    private String userName;
 
     private LocalDateTime createdAt;
+
+    private List<CommentDto> comments;
+
+
 
 }
