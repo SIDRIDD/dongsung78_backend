@@ -5,6 +5,7 @@ import kr.co.backend.domain.ContactComment;
 import kr.co.backend.domain.User;
 import kr.co.backend.dto.Contact.CommentRequestDto;
 import kr.co.backend.dto.Contact.ContactByIdDto;
+import kr.co.backend.dto.Contact.ContactCommentReturnDto;
 import kr.co.backend.dto.Contact.ContactGetAllDto;
 import kr.co.backend.service.ContactService;
 import kr.co.backend.service.UserService;
@@ -34,7 +35,7 @@ public class ContactController {
     }
 
     @PostMapping("/get/{id}/comments")
-    public ContactComment addComment(@PathVariable("id") Long id, @RequestBody CommentRequestDto commentRequestDto) {
+    public ContactCommentReturnDto addComment(@PathVariable("id") Long id, @RequestBody CommentRequestDto commentRequestDto) {
         User user = userService.findByName(commentRequestDto.getUserName()); // User를 가져오는 로직을 추가
         return contactService.addComment(id, commentRequestDto.getContent(), user);
     }

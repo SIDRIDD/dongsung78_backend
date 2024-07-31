@@ -5,6 +5,7 @@ import com.querydsl.core.Tuple;
 import kr.co.backend.domain.ContactComment;
 import kr.co.backend.domain.User;
 import kr.co.backend.dto.Contact.CommentDto;
+import kr.co.backend.dto.Contact.ContactCommentReturnDto;
 import kr.co.backend.repository.ContactCommentRepository;
 import kr.co.backend.repository.ContactRepository;
 import kr.co.backend.domain.Contact;
@@ -73,13 +74,23 @@ public class ContactService {
     }
 
     @Transactional
-    public ContactComment addComment(Long contactId, String content, User user) {
+    public ContactCommentReturnDto addComment(Long contactId, String content, User user) {
         Contact contact = contactRepository.findById(contactId).orElseThrow(() -> new RuntimeException("Contact not found"));
         ContactComment comment = new ContactComment();
         comment.setContent(content);
         comment.setContact(contact);
         comment.setUser(user);
-        return contactCommentRepository.save(comment);
+
+        contactCommentRepository.save(comment);
+
+        ContactCommentReturnDto contactCommentReturnDto = ContactCommentReturnDto.builder()
+                .id(user.getUserId())
+                .username(user.getName())
+                .content(content)
+                .build();
+
+
+        return contactCommentReturnDto;
     }
 }
 

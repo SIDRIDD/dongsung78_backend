@@ -1,11 +1,13 @@
 // JwtAuthenticationFilter.java
 package kr.co.backend.filter;
 
+import jakarta.servlet.http.Cookie;
 import kr.co.backend.service.CustomUserDetailsService;
 import kr.co.backend.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,49 +42,59 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        Cookie[] cookies = request.getCookies();
         final String authorizationHeader = request.getHeader("Authorization");
 
-        String name = null;
         String jwt = null;
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
-            try {
-                name = jwtUtil.getUserNameFromToken(jwt);
-            } catch (Exception e) {
-                logger.error("JWT token parsing failed", e);
+        if(cookies != null){
+            for(Cookie cookie : cookies){
+                if("token".equals(cookie.getName())){
+                    jwt = cookie.getValue();
+                    break;
+
+                }
             }
         }
 
-        if (name != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = null;
+        if (jwt != null) {
             try {
-                userDetails = this.customUserDetailsService.loadUserByUsername(name);
-            } catch (Exception e) {
-                logger.error("User details loading failed", e);
-            }
+                String name = jwtUtil.getUserNameFromToken(jwt);
+                logger.info("Extracted username from JWT: {}", name);
 
-            if (userDetails != null && !jwtUtil.isTokenExpired(jwt)) {
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                usernamePasswordAuthenticationToken
-                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            } else {
-                logger.warn("JWT token is expired or invalid");
+                if (name != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(name);
+
+                    if (userDetails != null && !jwtUtil.isTokenExpired(jwt)) {
+                        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        usernamePasswordAuthenticationToken
+                                .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("JWT token parsing failed", e);
             }
         } else {
-            logger.warn("Name is null or already authenticated");
+            logger.warn("JWT token is missing in cookies");
         }
 
         try {
             chain.doFilter(request, response);
-        } catch (Exception e) {
+        } catch (HttpMessageNotWritableException e) {
+            logger.error("HttpMessageNotWritableException occurred", e);
             if (!response.isCommitted()) {
-                logger.error("Error during filtering request", e);
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error writing HTTP message");
+            } else {
+                logger.error("Cannot call sendError() after the response has been committed", e);
+            }
+        } catch (Exception e) {
+            logger.error("Error during filtering request", e);
+            if (!response.isCommitted()) {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An internal server error occurred");
             } else {
-                logger.error("Error during filtering request after response was committed", e);
+                logger.error("Cannot call sendError() after the response has been committed", e);
             }
         }
     }

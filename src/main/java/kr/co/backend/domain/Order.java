@@ -1,5 +1,6 @@
 package kr.co.backend.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import kr.co.backend.repository.OrderProductRepository;
 import lombok.AllArgsConstructor;
