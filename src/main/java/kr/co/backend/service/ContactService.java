@@ -3,21 +3,27 @@ package kr.co.backend.service;
 
 import com.querydsl.core.Tuple;
 import kr.co.backend.domain.ContactComment;
+import kr.co.backend.domain.StatusContact;
 import kr.co.backend.domain.User;
-import kr.co.backend.dto.Contact.CommentDto;
-import kr.co.backend.dto.Contact.ContactCommentReturnDto;
+import kr.co.backend.dto.Contact.*;
 import kr.co.backend.repository.ContactCommentRepository;
 import kr.co.backend.repository.ContactRepository;
 import kr.co.backend.domain.Contact;
-import kr.co.backend.dto.Contact.ContactByIdDto;
-import kr.co.backend.dto.Contact.ContactGetAllDto;
+import kr.co.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.sql.ForUpdateFragment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +35,9 @@ public class ContactService {
     private final ContactRepository contactRepository;
 
     private final ContactCommentRepository contactCommentRepository;
+
+    private final UserRepository userRepository;
+
 
     @Transactional(readOnly = true)
     public Page<ContactGetAllDto> get(Pageable pageable) {
@@ -73,7 +82,6 @@ public class ContactService {
 
     }
 
-    @Transactional
     public ContactCommentReturnDto addComment(Long contactId, String content, User user) {
         Contact contact = contactRepository.findById(contactId).orElseThrow(() -> new RuntimeException("Contact not found"));
         ContactComment comment = new ContactComment();
@@ -91,6 +99,31 @@ public class ContactService {
 
 
         return contactCommentReturnDto;
+    }
+
+    public ResponseEntity<String> save(ContactSaveDto contactSaveDto) {
+
+        try {
+
+            User user = userRepository.findByName(contactSaveDto.getUserName())
+                    .orElseThrow(() -> new RuntimeException("존재 하지 않는 유저입니다."));
+
+            Contact contact = Contact.builder()
+                    .user(user)
+                    .title(contactSaveDto.getTitle())
+                    .description(contactSaveDto.getDescription())
+                    .status(StatusContact.YET)
+                    .build();
+
+            contactRepository.save(contact);
+
+            return ResponseEntity.ok().body("문의 글이 등록되었습니다.");
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("정상 등록되지 않았습니다.");
+        }
+
+
     }
 }
 

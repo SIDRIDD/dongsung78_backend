@@ -3,16 +3,14 @@ package kr.co.backend.Controller;
 
 import kr.co.backend.domain.ContactComment;
 import kr.co.backend.domain.User;
-import kr.co.backend.dto.Contact.CommentRequestDto;
-import kr.co.backend.dto.Contact.ContactByIdDto;
-import kr.co.backend.dto.Contact.ContactCommentReturnDto;
-import kr.co.backend.dto.Contact.ContactGetAllDto;
+import kr.co.backend.dto.Contact.*;
 import kr.co.backend.service.ContactService;
 import kr.co.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -38,5 +36,10 @@ public class ContactController {
     public ContactCommentReturnDto addComment(@PathVariable("id") Long id, @RequestBody CommentRequestDto commentRequestDto) {
         User user = userService.findByName(commentRequestDto.getUserName()); // User를 가져오는 로직을 추가
         return contactService.addComment(id, commentRequestDto.getContent(), user);
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<String> save(@RequestBody ContactSaveDto contactSaveDto){
+        return contactService.save(contactSaveDto);
     }
 }

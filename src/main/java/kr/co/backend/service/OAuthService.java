@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -27,6 +28,7 @@ import java.util.Optional;
 @Service
 @Getter @Setter
 @ConfigurationProperties(prefix = "spring.security.oauth2.client.registration.naver")
+@Transactional
 public class OAuthService {
 
     @Autowired
