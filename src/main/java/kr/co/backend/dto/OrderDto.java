@@ -17,7 +17,7 @@ public class OrderDto {
 
     private Long productId;
 
-    private Integer userId;
+    private String userName;
 
     private Integer count;
 

@@ -22,7 +22,4 @@ public class ContactSaveDto {
 
     private String description;
 
-    private String filePath;
-
-
 }

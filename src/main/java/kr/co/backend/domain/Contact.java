@@ -43,7 +43,6 @@ public class Contact {
     @JsonManagedReference
     private List<ContactComment> comments;
 
-    private String filePath;
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

@@ -31,7 +31,7 @@ public class OrderService {
     public ResponseEntity<String> order(List<OrderDto> orderDtoList) {
 
         for (OrderDto orderDto : orderDtoList) {
-            User user = userRepository.findById(orderDto.getUserId())
+            User user = userRepository.findByName(orderDto.getUserName())
                     .orElseThrow(() -> new RuntimeException("존재 하지 않는 userId 입니다."));
 
             Product product = productRepository.findById(orderDto.getProductId())

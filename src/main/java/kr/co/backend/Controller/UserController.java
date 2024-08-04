@@ -48,6 +48,12 @@ public class UserController {
         }
     }
 
+    @GetMapping("/check-signup")
+    public Boolean checkSignUp(@RequestParam("username") String userName){
+        if(!userRepository.existsByName(userName)) return Boolean.TRUE;
+        else return Boolean.FALSE;
+    }
+
     @GetMapping("/check")
     public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "token", required = false) String token) {
         if (token != null && !token.isEmpty()) {
