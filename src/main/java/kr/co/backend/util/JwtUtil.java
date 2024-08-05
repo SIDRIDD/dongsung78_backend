@@ -62,7 +62,7 @@ public class JwtUtil {
     public String getUserNameFromToken(String token) {
         try {
             String username = getClaimsFromToken(token).getSubject();
-            logger.info("Extracted username from JWT: {}", username);
+            logger.info("1.Extracted username from JWT: {}", username);
             return username;
         } catch (Exception e) {
             logger.error("Failed to extract username from JWT", e);

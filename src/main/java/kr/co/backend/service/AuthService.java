@@ -52,4 +52,9 @@ public class AuthService {
         cookie.setMaxAge(60 * 60);
         response.addCookie(cookie);
     }
+
+    public String setAuthCookie(String token, HttpServletResponse response) {
+        addTokenToCookie(response, token);
+        return token;
+    }
 }

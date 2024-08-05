@@ -52,7 +52,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/user/**", "/auth/api/oauth/**",
                                 "/api/category/**", "/api/contact/**", "/api/order/**",
-                                "/api/product/**").permitAll()
+                                "/api/product/**", "/auth/**", "/oauth/redirect").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가

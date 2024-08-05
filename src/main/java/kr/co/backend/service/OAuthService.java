@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import kr.co.backend.domain.User;
 import kr.co.backend.repository.UserRepository;
 import lombok.Getter;
@@ -26,7 +28,8 @@ import java.util.Date;
 import java.util.Optional;
 
 @Service
-@Getter @Setter
+@Getter
+@Setter
 @ConfigurationProperties(prefix = "spring.security.oauth2.client.registration.naver")
 @Transactional
 public class OAuthService {
@@ -42,7 +45,9 @@ public class OAuthService {
     private String authorizationGrantType;
     private String redirectUri;
 
+
     public String processOAuthLogin(String code, String provider, String redirectUri) {
+
         String accessToken;
         switch (provider) {
             case "naver":
@@ -51,9 +56,6 @@ public class OAuthService {
             case "kakao":
                 accessToken = getAccessTokenFromKakao(code, redirectUri);
                 return processKakaoUser(accessToken);
-            case "google":
-                accessToken = getAccessTokenFromGoogle(code, redirectUri);
-                return processGoogleUser(accessToken);
             default:
                 throw new IllegalArgumentException("Unsupported provider: " + provider);
         }
@@ -186,6 +188,7 @@ public class OAuthService {
             throw new RuntimeException("Failed to get access token from Naver: " + response.getBody());
         }
 
+        System.out.println("response.getBody() 확인 :" + response.getBody());
         return extractAccessToken(response.getBody());
     }
 
@@ -193,6 +196,7 @@ public class OAuthService {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(responseBody);
+            System.out.println("rootNode 확인: " + rootNode);
             return rootNode.path("access_token").asText();
         } catch (Exception e) {
             throw new RuntimeException("Failed to extract access token", e);
@@ -257,8 +261,8 @@ public class OAuthService {
                 user.setOauthProvider("naver");
                 userRepository.save(user); // 사용자 정보를 저장합니다.
             }
-
-            return generateJwtToken(user);
+            String token = generateJwtToken(user);
+            return token;
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse user info", e);
         }
@@ -277,5 +281,7 @@ public class OAuthService {
                 .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1시간 후 만료
                 .signWith(key)
                 .compact();
+
     }
+
 }
