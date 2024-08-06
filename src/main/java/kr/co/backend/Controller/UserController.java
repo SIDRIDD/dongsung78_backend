@@ -1,6 +1,7 @@
 package kr.co.backend.Controller;
 
 
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.backend.domain.Role;
@@ -55,7 +56,7 @@ public class UserController {
     }
 
     @GetMapping("/check")
-    public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "token", required = false) String token) {
+    public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "token", required = false) @Nullable String token) {
         if (token != null && !token.isEmpty()) {
             try {
                 String username = jwtUtil.validateToken(token);

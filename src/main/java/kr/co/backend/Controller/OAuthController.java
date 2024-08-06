@@ -2,16 +2,21 @@ package kr.co.backend.Controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.backend.domain.User;
+import kr.co.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -29,6 +34,9 @@ import java.util.logging.Logger;
 public class OAuthController {
 
     private final RestTemplate restTemplate;
+
+    @Value("${jwt.secret}")
+    private String secretKey;
 
     @GetMapping("/oauth/redirect")
     public void redirectUriProcessor(@RequestParam("code") String code,
@@ -64,29 +72,39 @@ public class OAuthController {
         System.out.println("테스트3");
         ResponseEntity<String> userInfoResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, entity, String.class);
         System.out.println("테스트4");
+        System.out.println("userInfoReponse 확인 : " + userInfoResponse);
         String userInfo = userInfoResponse.getBody();
 
         System.out.println("테스트2");
 
         JsonNode userNode = objectMapper.readTree(userInfo);
         String email = userNode.path("response").path("email").asText();
-        String userName = userNode.path("response").path("name").asText();
+        String userName = userNode.path("response").path("nickname").asText();
 
-        Cookie tokenCookie = new Cookie("accessToken", accessToken);
+        String token = Jwts.builder()
+                .setSubject("userDetails")
+                        .claim("email", email)
+                                .claim("userName", userName)
+                                        .signWith(SignatureAlgorithm.HS256, secretKey)
+                                                .compact();
+
+
+        Cookie tokenCookie = new Cookie("accessToken", token);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/"); // 모든 경로에서 쿠키 접근 가능
+        tokenCookie.setMaxAge(60*60);
         response.addCookie(tokenCookie);
 
-        Cookie userNameCookie = new Cookie("userName", URLEncoder.encode(userName, "UTF-8"));
-        userNameCookie.setPath("/");
-        response.addCookie(userNameCookie);
-
-        Cookie emailCookie = new Cookie("email", URLEncoder.encode(email, "UTF-8"));
-        emailCookie.setPath("/");
-        response.addCookie(emailCookie);
+//        Cookie userNameCookie = new Cookie("userName", URLEncoder.encode(userName, "UTF-8"));
+//        userNameCookie.setPath("/");
+//        response.addCookie(userNameCookie);
+//
+//        Cookie emailCookie = new Cookie("email", URLEncoder.encode(email, "UTF-8"));
+//        emailCookie.setPath("/");
+//        response.addCookie(emailCookie);
 
         System.out.println("email 확인 : " + email + "userName 확인 : " + userName);
-        response.sendRedirect("http://localhost:3000/");
+        response.sendRedirect("http://localhost:3000?email="+URLEncoder.encode(email, "UTF-8")+"&userName="+URLEncoder.encode(userName, "UTF-8"));
 
     }
 
