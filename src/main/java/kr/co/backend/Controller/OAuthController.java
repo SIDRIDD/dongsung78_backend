@@ -63,31 +63,27 @@ public class OAuthController {
         JsonNode rootNode = objectMapper.readTree(body);
         String accessToken = rootNode.path("access_token").asText();
 
-        System.out.println("테스트1");
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         String userInfoUrl = "https://openapi.naver.com/v1/nid/me";
-        System.out.println("테스트3");
         ResponseEntity<String> userInfoResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, entity, String.class);
-        System.out.println("테스트4");
         System.out.println("userInfoReponse 확인 : " + userInfoResponse);
         String userInfo = userInfoResponse.getBody();
 
-        System.out.println("테스트2");
-
         JsonNode userNode = objectMapper.readTree(userInfo);
-        String email = userNode.path("response").path("email").asText();
-        String userName = userNode.path("response").path("nickname").asText();
+        String email_beforePasing = userNode.path("response").path("email").asText();
+
+        String[] parts = email_beforePasing.split("@");
+
+        String userName = parts != null ?parts[0] : "맞지 않는 email 형식";
 
         String token = Jwts.builder()
                 .setSubject("userDetails")
-                        .claim("email", email)
-                                .claim("userName", userName)
+                        .claim("email", userName)
                                         .signWith(SignatureAlgorithm.HS256, secretKey)
                                                 .compact();
-
 
         Cookie tokenCookie = new Cookie("accessToken", token);
         tokenCookie.setHttpOnly(true);
@@ -103,8 +99,8 @@ public class OAuthController {
 //        emailCookie.setPath("/");
 //        response.addCookie(emailCookie);
 
-        System.out.println("email 확인 : " + email + "userName 확인 : " + userName);
-        response.sendRedirect("http://localhost:3000?email="+URLEncoder.encode(email, "UTF-8")+"&userName="+URLEncoder.encode(userName, "UTF-8"));
+        System.out.println("userName 확인 : " + userName);
+        response.sendRedirect("http://localhost:3000/");
 
     }
 
