@@ -42,6 +42,8 @@ public class ContactService {
 
     private final ContactCommentRepository contactCommentRepository;
 
+    private final JwtUtil jwtUtil;
+
     private final UserRepository userRepository;
 
     @Value("${jwt.secret}")
@@ -69,9 +71,10 @@ public class ContactService {
     }
 
     @Transactional(readOnly = true)
-    public ContactByIdDto getById(Long id) {
-        Contact contact = contactRepository.findById(id).orElseThrow(() -> new RuntimeException("Contact not found"));
-        List<CommentDto> comments = contactCommentRepository.findByContactId(id).stream()
+    public ContactByIdDto getById(Integer contactId) {
+
+        Contact contact = contactRepository.findById(contactId).orElseThrow(() -> new RuntimeException("Contact not found"));
+        List<CommentDto> comments = contactCommentRepository.findByContactId(contactId).stream()
                 .map(comment -> new CommentDto(
                         comment.getId(),
                         comment.getContent(),
@@ -90,7 +93,11 @@ public class ContactService {
 
     }
 
-    public ContactCommentReturnDto addComment(Long contactId, String content, User user) {
+    public ContactCommentReturnDto addComment(Integer contactId, String content, HttpServletRequest request) {
+        String userName = getUserName(request);
+
+        User user = userRepository.findByName(userName).orElseThrow(() -> new RuntimeException("로그인이 풀려 댓글을 등록할 수 없습니다."));
+
         Contact contact = contactRepository.findById(contactId).orElseThrow(() -> new RuntimeException("Contact not found"));
         ContactComment comment = new ContactComment();
         comment.setContent(content);
@@ -111,17 +118,7 @@ public class ContactService {
 
     public ResponseEntity<String> save(ContactSaveDto contactSaveDto, HttpServletRequest request) {
 
-        String jwtToken = getJwtFromCookies(request.getCookies());
-        if (jwtToken == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
-        }
-
-        JwtUtil jwtUtil = new JwtUtil(secretKey);
-
-        String userName = jwtUtil.getUserNameFromToken(jwtToken);
-        if (userName == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
-        }
+        String userName = getUserName(request);
 
         try {
 
@@ -153,6 +150,20 @@ public class ContactService {
             }
         }
         return null;
+    }
+
+    private String getUserName(HttpServletRequest request){
+        String jwtToken = getJwtFromCookies(request.getCookies());
+        if (jwtToken == null) {
+            return null;
+        }
+
+        String userName = jwtUtil.getUserNameFromToken(jwtToken);
+        if (userName == null) {
+            return null;
+        }
+
+        return userName;
     }
 }
 

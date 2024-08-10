@@ -76,6 +76,17 @@ public class JwtUtil {
         }
     }
 
+    public Integer getUserIdFromToken(String token) {
+        try {
+            Integer userId = Integer.parseInt(getClaimsFromToken(token).getId());
+            logger.info("userId from JWT token : ", userId);
+            return userId;
+        } catch (Exception e) {
+            logger.error("Failed to extract userId from JWT", e);
+            return null;
+        }
+    }
+
     public String validateToken(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(secretKey) // 수정된 부분

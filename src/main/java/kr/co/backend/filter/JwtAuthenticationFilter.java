@@ -93,7 +93,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
-            chain.doFilter(request, response);
+            chain.  doFilter(request, response);
         } catch (HttpMessageNotWritableException e) {
             logger.error("HttpMessageNotWritableException occurred", e);
             if (!response.isCommitted()) {

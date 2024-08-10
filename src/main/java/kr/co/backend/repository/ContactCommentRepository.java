@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ContactCommentRepository extends JpaRepository<ContactComment, Long> {
+public interface ContactCommentRepository extends JpaRepository<ContactComment, Integer> {
 
-    List<ContactComment> findByContactId(Long contactId);
+    List<ContactComment> findByContactId(Integer contactId);
 }

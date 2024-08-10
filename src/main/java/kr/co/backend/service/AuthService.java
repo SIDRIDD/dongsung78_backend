@@ -9,6 +9,7 @@ import kr.co.backend.repository.UserRepository;
 import kr.co.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +23,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-    public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseEntity<?> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         User user = userRepository.findByName(loginRequestDto.getUserName())
                 .orElseThrow(() -> new RuntimeException("존재 하지 않는 userName입니다."));
 
@@ -33,15 +34,21 @@ public class AuthService {
         // 여기서 JWT 토큰을 생성하는 로직이 들어가야 합니다.
         // 예시로 token에 "dummy-token"을 반환합니다.
         String token = jwtUtil.generateToken(user.getName());
-
         addTokenToCookie(response, token);
 
-        LoginResponseDto responseDto = new LoginResponseDto();
-        responseDto.setToken(token);
-        responseDto.setEmail(user.getEmail());
-        responseDto.setUserName(user.getName());
+        String refreshToken = jwtUtil.generateToken(user.getName());
+        addRefreshTokenToCookie(response, refreshToken);
 
-        return responseDto;
+        return ResponseEntity.ok().body("로그인 되었습니다.");
+    }
+
+    private void addRefreshTokenToCookie(HttpServletResponse response, String refreshToken) {
+
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(69 * 60 * 60 * 24);
+        response.addCookie(cookie);
     }
 
     private void addTokenToCookie(HttpServletResponse response, String token) {
@@ -49,9 +56,11 @@ public class AuthService {
         cookie.setHttpOnly(true);
 //        cookie.setSecure(true); -> 배포 환경에서는 https 를 사용해야 하기 때문에 이걸 추가해야함
         cookie.setPath("/");
-        cookie.setMaxAge(60 * 60);
+        cookie.setMaxAge(60 * 60 * 15);
         response.addCookie(cookie);
     }
+
+
 
     public String setAuthCookie(String token, HttpServletResponse response) {
         addTokenToCookie(response, token);

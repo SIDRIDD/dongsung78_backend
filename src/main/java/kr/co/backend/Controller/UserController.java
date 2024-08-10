@@ -2,6 +2,7 @@ package kr.co.backend.Controller;
 
 
 import jakarta.annotation.Nullable;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.backend.domain.Role;
@@ -42,12 +43,53 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
         if (userRepository.existsByName(loginRequestDto.getUserName())) {
-            LoginResponseDto responseDto = authService.login(loginRequestDto, response);
-            return ResponseEntity.ok(responseDto);
+            return authService.login(loginRequestDto, response);
+
         } else {
             return ResponseEntity.badRequest().body("존재 하지 않는 ID입니다.");
         }
     }
+
+    @GetMapping("/refresh")
+    public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+        String refreshToken = null;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        if (jwtUtil.isTokenExpired(refreshToken)) {
+            return ResponseEntity.status(401).body("Refresh Token has expired");
+        }
+
+        String username = jwtUtil.getUserNameFromToken(refreshToken);
+        String token = jwtUtil.generateToken(username);
+
+        setCookie(refreshToken, token, response);
+
+        return ResponseEntity.ok().body("로그인이 유효합니다.");
+    }
+
+    private void setCookie(String refreshToken, String token, HttpServletResponse response) {
+
+        Cookie cookie_refresh = new Cookie("refreshToken", refreshToken);
+        cookie_refresh.setHttpOnly(true);
+        cookie_refresh.setPath("/");
+        cookie_refresh.setMaxAge(69 * 60 * 60 * 24);
+        response.addCookie(cookie_refresh);
+
+        Cookie cookie = new Cookie("token", token);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 15);
+        response.addCookie(cookie);
+    }
+
 
     @GetMapping("/check-signup")
     public Boolean checkSignUp(@RequestParam("username") String userName){
