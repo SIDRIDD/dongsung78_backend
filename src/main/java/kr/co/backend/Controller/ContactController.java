@@ -1,6 +1,8 @@
 package kr.co.backend.Controller;
 
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import kr.co.backend.domain.ContactComment;
 import kr.co.backend.domain.User;
 import kr.co.backend.dto.Contact.*;
@@ -39,7 +41,7 @@ public class ContactController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<String> save(@RequestBody ContactSaveDto contactSaveDto){
-        return contactService.save(contactSaveDto);
+    public ResponseEntity<String> save(@RequestBody ContactSaveDto contactSaveDto, HttpServletRequest request){
+        return contactService.save(contactSaveDto, request);
     }
 }

@@ -2,6 +2,9 @@ package kr.co.backend.service;
 
 
 import com.querydsl.core.Tuple;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import kr.co.backend.domain.ContactComment;
 import kr.co.backend.domain.StatusContact;
 import kr.co.backend.domain.User;
@@ -10,11 +13,14 @@ import kr.co.backend.repository.ContactCommentRepository;
 import kr.co.backend.repository.ContactRepository;
 import kr.co.backend.domain.Contact;
 import kr.co.backend.repository.UserRepository;
+import kr.co.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.sql.ForUpdateFragment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +44,8 @@ public class ContactService {
 
     private final UserRepository userRepository;
 
+    @Value("${jwt.secret}")
+    private String secretKey;
 
     @Transactional(readOnly = true)
     public Page<ContactGetAllDto> get(Pageable pageable) {
@@ -101,11 +109,23 @@ public class ContactService {
         return contactCommentReturnDto;
     }
 
-    public ResponseEntity<String> save(ContactSaveDto contactSaveDto) {
+    public ResponseEntity<String> save(ContactSaveDto contactSaveDto, HttpServletRequest request) {
+
+        String jwtToken = getJwtFromCookies(request.getCookies());
+        if (jwtToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        JwtUtil jwtUtil = new JwtUtil(secretKey);
+
+        String userName = jwtUtil.getUserNameFromToken(jwtToken);
+        if (userName == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
 
         try {
 
-            User user = userRepository.findByName(contactSaveDto.getUserName())
+            User user = userRepository.findByName(userName)
                     .orElseThrow(() -> new RuntimeException("존재 하지 않는 유저입니다."));
 
             Contact contact = Contact.builder()
@@ -122,8 +142,17 @@ public class ContactService {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("정상 등록되지 않았습니다.");
         }
+    }
 
-
+    private String getJwtFromCookies(Cookie[] cookies) {
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }
 

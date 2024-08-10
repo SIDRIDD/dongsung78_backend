@@ -10,6 +10,7 @@ import io.jsonwebtoken.security.SignatureException;
 import kr.co.backend.filter.JwtAuthenticationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,11 @@ public class JwtUtil {
 
     @Value("${jwt.expiration}")
     private long expiration;
+
+    @Autowired
+    public JwtUtil(@Value("${jwt.secret}") String secretKey){
+        this.secretKey = secretKey;
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 

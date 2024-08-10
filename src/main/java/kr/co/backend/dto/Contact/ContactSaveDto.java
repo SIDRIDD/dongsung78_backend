@@ -16,8 +16,6 @@ import java.util.List;
 @Builder
 public class ContactSaveDto {
 
-    private String userName;
-
     private String title;
 
     private String description;
