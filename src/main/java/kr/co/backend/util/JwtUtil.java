@@ -36,6 +36,7 @@ public class JwtUtil {
     public String generateToken(String name) {
         return Jwts.builder()
                 .setSubject(name)
+                .claim("name", name)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(SignatureAlgorithm.HS512, secretKey) // 수정된 부분

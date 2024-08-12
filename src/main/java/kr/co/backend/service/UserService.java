@@ -20,6 +20,9 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public ResponseEntity<String> save(UserSaveDto userDto){
+        if(userRepository.existsByName(userDto.getName())){
+            return ResponseEntity.badRequest().body("이미 존재하는 회원입니다.");
+        }
 
         User user = userDto.toEntity();
         user.setPassword(passwordEncoder.encode(user.getPassword()));

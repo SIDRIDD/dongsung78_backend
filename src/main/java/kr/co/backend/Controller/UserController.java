@@ -49,32 +49,6 @@ public class UserController {
             return ResponseEntity.badRequest().body("존재 하지 않는 ID입니다.");
         }
     }
-
-    @GetMapping("/refresh")
-    public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
-        Cookie[] cookies = request.getCookies();
-        String refreshToken = null;
-
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("refreshToken".equals(cookie.getName())) {
-                    refreshToken = cookie.getValue();
-                    break;
-                }
-            }
-        }
-        if (jwtUtil.isTokenExpired(refreshToken)) {
-            return ResponseEntity.status(401).body("Refresh Token has expired");
-        }
-
-        String username = jwtUtil.getUserNameFromToken(refreshToken);
-        String token = jwtUtil.generateToken(username);
-
-        setCookie(refreshToken, token, response);
-
-        return ResponseEntity.ok().body("로그인이 유효합니다.");
-    }
-
     private void setCookie(String refreshToken, String token, HttpServletResponse response) {
 
         Cookie cookie_refresh = new Cookie("refreshToken", refreshToken);
@@ -98,14 +72,14 @@ public class UserController {
     }
 
     @GetMapping("/check")
-    public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "token", required = false) @Nullable String token) {
+    public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "token", required = false) @Nullable String token, HttpServletResponse response) {
         if (token != null && !token.isEmpty()) {
             try {
                 String username = jwtUtil.validateToken(token);
-                User user = userRepository.findByName(username).orElseThrow(() -> new RuntimeException("존재하지 않는 ID입니다."));
-                if (user != null) {
-                    LoginResponseDto responseDto = new LoginResponseDto(token, user.getEmail(), user.getName());
-                    return ResponseEntity.ok(responseDto);
+                if (username != null) {
+                    String accessToken = jwtUtil.generateToken(username);
+                    setAccessToken(accessToken, response);
+                    return ResponseEntity.ok().body("Invalid Token");
                 } else {
                     return ResponseEntity.status(401).body("Invalid user");
                 }
@@ -115,6 +89,16 @@ public class UserController {
         } else {
             return ResponseEntity.status(401).body("Not authenticated");
         }
+    }
+
+    private void setAccessToken(String accessToken, HttpServletResponse response) {
+        System.out.println("제너레이트토큰!!!!!!!!!!!!!");
+        Cookie cookie = new Cookie("token", accessToken);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 15);
+        response.addCookie(cookie);
+
     }
 
 }

@@ -7,6 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.backend.domain.User;
+import kr.co.backend.service.OAuthService;
 import kr.co.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -22,9 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+
 import org.springframework.http.HttpHeaders;
 
 import java.net.URLEncoder;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -38,10 +41,14 @@ public class OAuthController {
     @Value("${jwt.secret}")
     private String secretKey;
 
+    @Value("${jwt.expiration}")
+    private long expiration;
+    private final OAuthService oAuthService;
+
     @GetMapping("/oauth/redirect")
-    public void redirectUriProcessor(@RequestParam("code") String code,
-                                     @RequestParam("state") String state,
-                                     HttpServletResponse response) throws IOException {
+    public void NaverredirectUriProcessor(@RequestParam("code") String code,
+                                          @RequestParam("state") String state,
+                                          HttpServletResponse response) throws IOException {
         System.out.println("code : " + code);
         System.out.println("state : " + state);
 
@@ -77,18 +84,21 @@ public class OAuthController {
 
         String[] parts = email_beforePasing.split("@");
 
-        String userName = parts != null ?parts[0] : "맞지 않는 email 형식";
+        String userName = parts != null ? parts[0] : "맞지 않는 email 형식";
+
+        oAuthService.oauthUserSave(userName, "naver");
 
         String token = Jwts.builder()
-                .setSubject("userDetails")
-                        .claim("email", userName)
-                                        .signWith(SignatureAlgorithm.HS256, secretKey)
-                                                .compact();
+                .setSubject(userName)
+                .claim("name", userName)
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
 
-        Cookie tokenCookie = new Cookie("accessToken", token);
+        Cookie tokenCookie = new Cookie("token", token);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/"); // 모든 경로에서 쿠키 접근 가능
-        tokenCookie.setMaxAge(60*60);
+        tokenCookie.setMaxAge(60 * 60);
         response.addCookie(tokenCookie);
 
 //        Cookie userNameCookie = new Cookie("userName", URLEncoder.encode(userName, "UTF-8"));
