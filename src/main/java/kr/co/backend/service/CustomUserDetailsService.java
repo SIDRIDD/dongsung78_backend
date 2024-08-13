@@ -32,9 +32,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByName(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+        String password = (user.getOauthProvider() != null) ? "" : user.getPassword();
         return new org.springframework.security.core.userdetails.User(
                 user.getName(),
-                user.getPassword(),
+                password,
                 new ArrayList<>()
         );
     }
