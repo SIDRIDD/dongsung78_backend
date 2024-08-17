@@ -16,11 +16,13 @@ public class AddressDto {
     private String street;
     private String zipcode;
 
+    private String detail;
+
     public Address toEntity() {
-        return new Address(this.city, this.street, this.zipcode);
+        return new Address(this.city, this.street, this.zipcode, this.detail);
     }
 
     public static AddressDto fromEntity(Address address) {
-        return new AddressDto(address.getCity(), address.getStreet(), address.getZipcode());
+        return new AddressDto(address.getCity(), address.getStreet(), address.getZipcode(), address.getDetail());
     }
 }

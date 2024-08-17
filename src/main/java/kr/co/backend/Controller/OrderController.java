@@ -1,6 +1,8 @@
 package kr.co.backend.Controller;
 
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import kr.co.backend.dto.OrderDto;
 import kr.co.backend.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +19,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/save")
-    public ResponseEntity<String> order(@RequestBody List<OrderDto> orderDto){
-        return orderService.order(orderDto);
+    public ResponseEntity<String> order(@RequestBody List<OrderDto> orderDto, HttpServletRequest request){
+        return orderService.order(orderDto, request);
     }
 
     @DeleteMapping("/delete/{productId}")

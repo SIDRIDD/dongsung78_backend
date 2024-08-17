@@ -174,10 +174,12 @@ public class OAuthController {
         userName = userName.concat("_").concat("kakao");
         if (userRepository.existsByName(userName)) {
             getnerateToken(userName, response);
+            getnerateRefreshToken(userName, response);
             response.sendRedirect("http://localhost:3000/");
         } else {
             oAuthService.oauthUserSave(userName, "kakao");
             getnerateToken(userName, response);
+            getnerateRefreshToken(userName, response);
             response.sendRedirect("http://localhost:3000/");
         }
     }
@@ -193,7 +195,22 @@ public class OAuthController {
         Cookie tokenCookie = new Cookie("token", token);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/");
-        tokenCookie.setMaxAge(60 * 60);
+        tokenCookie.setMaxAge(60 * 60 * 15);
+        response.addCookie(tokenCookie);
+    }
+
+    private void getnerateRefreshToken(String userName, HttpServletResponse response) {
+        String token = Jwts.builder()
+                .setSubject(userName)
+                .claim("name", userName)
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+
+        Cookie tokenCookie = new Cookie("RefreshToken", token);
+        tokenCookie.setHttpOnly(true);
+        tokenCookie.setPath("/");
+        tokenCookie.setMaxAge(60 * 60 * 15 * 10);
         response.addCookie(tokenCookie);
     }
 

@@ -47,7 +47,7 @@ public class AuthService {
         Cookie cookie = new Cookie("refreshToken", refreshToken);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(69 * 60 * 60 * 24);
+        cookie.setMaxAge(69 * 60 * 15 * 10);
         response.addCookie(cookie);
     }
 
