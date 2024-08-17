@@ -1,6 +1,7 @@
 package kr.co.backend.service;
 
 
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,8 +31,11 @@ public class OrderService {
     private final ProductRepository productRepository;
 
     private final JwtUtil jwtUtil;
+
+    private final EntityManager entityManager;
+
     /**
-     *주문
+     * 주문
      */
     public ResponseEntity<String> order(List<OrderDto> orderDtoList, HttpServletRequest request) {
         String userName = getUserName(request);
@@ -43,15 +47,41 @@ public class OrderService {
             Product product = productRepository.findById(orderDto.getProductId())
                     .orElseThrow(() -> new RuntimeException("존재 하지 않는 productId 입니다."));
 
-            Delivery delivery = new Delivery();
-            delivery.setAddress(user.getAddress());
-            delivery.setStatus(DeliveryStatus.READY);
 
-            OrderProduct orderProduct = OrderProduct.createOrderProduct(product, product.getPrice(), orderDto.getCount());
+            if (user.getOauthProvider() != null) {
+                Address address = Address.builder()
+                        .city(orderDto.getCity())
+                        .street(orderDto.getStreet())
+                        .zipcode(orderDto.getZipCode())
+                        .build();
+                user.setAddress(address);
+                userRepository.save(user);
+                entityManager.flush();
 
-            Order order = Order.createOrder(user, delivery, orderProduct);
+                Delivery delivery = Delivery.builder()
+                        .address(address)
+                        .detail(orderDto.getRequest())
+                        .status(DeliveryStatus.READY)
+                        .build();
 
-            orderRepository.save(order);
+                OrderProduct orderProduct = OrderProduct.createOrderProduct(product, product.getPrice(), orderDto.getCount());
+
+                Order order = Order.createOrder(user, delivery, orderProduct);
+
+                orderRepository.save(order);
+            } else {
+                Delivery delivery = Delivery.builder()
+                        .address(user.getAddress())
+                        .detail(orderDto.getRequest())
+                        .status(DeliveryStatus.READY)
+                        .build();
+
+                OrderProduct orderProduct = OrderProduct.createOrderProduct(product, product.getPrice(), orderDto.getCount());
+
+                Order order = Order.createOrder(user, delivery, orderProduct);
+
+                orderRepository.save(order);
+            }
         }
 
         return ResponseEntity.ok().body("주문이 완료되었습니다.");
@@ -68,7 +98,7 @@ public class OrderService {
         return null;
     }
 
-    private String getUserName(HttpServletRequest request){
+    private String getUserName(HttpServletRequest request) {
         String jwtToken = getJwtFromCookies(request.getCookies());
         if (jwtToken == null) {
             return null;
@@ -86,7 +116,7 @@ public class OrderService {
      * 취소
      */
 
-    public ResponseEntity<String> cancelOrder(Long orderId){
+    public ResponseEntity<String> cancelOrder(Long orderId) {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("존재 하지 않는 orderId 입니다."));
@@ -100,9 +130,6 @@ public class OrderService {
     /**
      * 검색
      */
-
-
-
 
 
 }

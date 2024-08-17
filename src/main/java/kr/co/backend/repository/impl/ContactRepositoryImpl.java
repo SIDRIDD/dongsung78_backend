@@ -36,7 +36,10 @@ public class ContactRepositoryImpl implements CustomContactRepository {
 
         List<Tuple> result = query.fetch();
 
-        long total = result.size();
+        long total = jpaQueryFactory
+                .select(contact.count())
+                .from(contact)
+                .fetchOne();
 
 
         return new PageImpl<>(result, pageable, total);

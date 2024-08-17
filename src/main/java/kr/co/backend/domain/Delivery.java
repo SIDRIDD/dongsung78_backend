@@ -2,10 +2,10 @@ package kr.co.backend.domain;
 
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Entity
+@AllArgsConstructor @NoArgsConstructor
+@Entity @Builder
 @Getter @Setter
 public class Delivery {
 
@@ -19,6 +19,9 @@ public class Delivery {
 
     @Embedded
     private Address address;
+
+    @Column(insertable = false, updatable = false)
+    private String detail;
 
     @Enumerated(EnumType.STRING)
     private DeliveryStatus status; //READY, COMP

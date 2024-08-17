@@ -1,13 +1,11 @@
 package kr.co.backend.domain;
 
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor @NoArgsConstructor
 @Getter
+@Builder
 @Embeddable
 public class Address {
 

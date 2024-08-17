@@ -25,7 +25,7 @@ public class ContactController {
     private final UserService userService;
 
     @GetMapping("/getall")
-    public Page<ContactGetAllDto> get(@PageableDefault(page=0, size = 15, sort = "id")Pageable pageable){
+    public Page<ContactGetAllDto> get(@PageableDefault(page=0, size = 10, sort = "id")Pageable pageable){
         return contactService.get(pageable);
     }
 
