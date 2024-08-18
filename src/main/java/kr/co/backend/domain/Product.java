@@ -56,7 +56,8 @@ public class Product {
     public void removeStock(int stock){
         int restStock = this.stock - stock;
         if(restStock < 0){
-            throw new NotEnoughStockException("need more stock");
+            System.out.println("stock: " + stock);
+            throw new NotEnoughStockException("재고가 부족합니다.");
         }
         this.stock = restStock;
     }
