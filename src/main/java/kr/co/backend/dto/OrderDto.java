@@ -24,9 +24,9 @@ public class OrderDto {
 
     private String phoneNumber;
 
-    private String city;
+    private String roadAddress;
 
-    private String street;
+    private String detailAddress;
 
     private String zipCode;
 

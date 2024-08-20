@@ -9,11 +9,10 @@ import lombok.*;
 @Embeddable
 public class Address {
 
-    private String city;
+    private String roadAddress;
 
-    private String street;
+    private String detailAddress;
 
     private String zipcode;
 
-    private String detail;
 }

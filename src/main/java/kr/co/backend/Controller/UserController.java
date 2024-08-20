@@ -5,10 +5,12 @@ import jakarta.annotation.Nullable;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.backend.domain.Delivery;
 import kr.co.backend.domain.Role;
 import kr.co.backend.domain.User;
 import kr.co.backend.dto.User.LoginRequestDto;
 import kr.co.backend.dto.User.LoginResponseDto;
+import kr.co.backend.dto.User.OldDeliveryDto;
 import kr.co.backend.dto.User.UserSaveDto;
 import kr.co.backend.repository.UserRepository;
 import kr.co.backend.service.AuthService;
@@ -49,6 +51,7 @@ public class UserController {
             return ResponseEntity.badRequest().body("존재 하지 않는 ID입니다.");
         }
     }
+
     private void setCookie(String refreshToken, String token, HttpServletResponse response) {
 
         Cookie cookie_refresh = new Cookie("refreshToken", refreshToken);
@@ -66,8 +69,8 @@ public class UserController {
 
 
     @GetMapping("/check-signup")
-    public Boolean checkSignUp(@RequestParam("username") String userName){
-        if(!userRepository.existsByName(userName)) return Boolean.TRUE;
+    public Boolean checkSignUp(@RequestParam("username") String userName) {
+        if (!userRepository.existsByName(userName)) return Boolean.TRUE;
         else return Boolean.FALSE;
     }
 
@@ -99,6 +102,32 @@ public class UserController {
         cookie.setMaxAge(60 * 60 * 15);
         response.addCookie(cookie);
 
+    }
+
+    @GetMapping("/delivery-info")
+    public OldDeliveryDto getOldDelivery(HttpServletRequest request) {
+        String jwt = "";
+        String userName = "";
+        OldDeliveryDto oldDeliveryDto = null;
+        Cookie[] cookies = request.getCookies();
+
+        for (Cookie cookie : cookies) {
+            if ("token".equals(cookie.getName())) {
+                jwt = cookie.getValue();
+
+                userName = jwtUtil.getUserNameFromToken(jwt);
+
+                User user = userRepository.findByName(userName).orElseThrow(() -> new RuntimeException("토큰이 유효하지 않습니다.")); //유저가 없다고 해야되는건지 토큰이 유효하지 않다고 해야 하는건지 헷갈림
+                oldDeliveryDto = OldDeliveryDto.builder()
+                        .roadAddress(user.getAddress().getRoadAddress())
+                        .detailAddress(user.getAddress().getDetailAddress())
+                        .zipCode(user.getAddress().getZipcode())
+                        .build();
+
+            }
+        }
+
+        return oldDeliveryDto;
     }
 
 }

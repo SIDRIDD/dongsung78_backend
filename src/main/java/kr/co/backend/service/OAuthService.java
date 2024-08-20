@@ -1,5 +1,6 @@
 package kr.co.backend.service;
 
+import kr.co.backend.domain.Role;
 import kr.co.backend.domain.User;
 import kr.co.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class OAuthService {
         User user = User.builder()
                 .name(userName)
                 .oauthProvider(provider)
+                .role(Role.CUSTOMER)
                 .build();
 
         userRepository.save(user);

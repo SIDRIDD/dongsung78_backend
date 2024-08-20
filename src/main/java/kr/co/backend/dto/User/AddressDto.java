@@ -12,17 +12,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AddressDto {
-    private String city;
-    private String street;
+    private String roadAddress;
+    private String detailAddress;
     private String zipcode;
 
-    private String detail;
-
     public Address toEntity() {
-        return new Address(this.city, this.street, this.zipcode, this.detail);
+        return new Address(this.roadAddress, this.detailAddress, this.zipcode);
     }
 
     public static AddressDto fromEntity(Address address) {
-        return new AddressDto(address.getCity(), address.getStreet(), address.getZipcode(), address.getDetail());
+        return new AddressDto(address.getRoadAddress(), address.getDetailAddress(), address.getZipcode());
     }
 }

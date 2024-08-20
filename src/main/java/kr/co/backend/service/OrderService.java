@@ -50,11 +50,12 @@ public class OrderService {
 
             if (user.getOauthProvider() != null) {
                 Address address = Address.builder()
-                        .city(orderDto.getCity())
-                        .street(orderDto.getStreet())
+                        .roadAddress(orderDto.getRoadAddress())
+                        .detailAddress(orderDto.getDetailAddress())
                         .zipcode(orderDto.getZipCode())
                         .build();
                 user.setAddress(address);
+                user.setPhoneNumber(orderDto.getPhoneNumber());
                 userRepository.save(user);
                 entityManager.flush();
 
@@ -70,8 +71,19 @@ public class OrderService {
 
                 orderRepository.save(order);
             } else {
+                Address address = Address.builder()
+                        .roadAddress(orderDto.getRoadAddress())
+                        .detailAddress(orderDto.getDetailAddress())
+                        .zipcode(orderDto.getZipCode())
+                        .build();
+
+                if(user.getAddress().getRoadAddress() == null){
+                    user.setAddress(address);
+                    userRepository.save(user);
+                }
+
                 Delivery delivery = Delivery.builder()
-                        .address(user.getAddress())
+                        .address(address)
                         .detail(orderDto.getRequest())
                         .status(DeliveryStatus.READY)
                         .build();
