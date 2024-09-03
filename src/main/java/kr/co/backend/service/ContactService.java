@@ -30,6 +30,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,11 +57,23 @@ public class ContactService {
         Page<Tuple> results = contactRepository.getAll(pageable);
 
         List<ContactGetAllDto> contactGetAllDtos = results.stream().map(result -> {
+
+            LocalDateTime dateTime = result.get(5, LocalDateTime.class);
+            String formattedDate = null;
+
+            try {
+                formattedDate = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            } catch (NullPointerException e) {
+                formattedDate = null;
+            }
+
             ContactGetAllDto contactGetAllDto = new ContactGetAllDto(
                     result.get(0, Integer.class),
                     result.get(1, String.class),
                     result.get(2, String.class),
-                    result.get(3, Integer.class)
+                    result.get(3, Integer.class),
+                    result.get(4, String.class),
+                    formattedDate
             );
 
             return contactGetAllDto;
@@ -135,7 +149,7 @@ public class ContactService {
             contactRepository.save(contact);
 
             return ResponseEntity.ok().body("문의 글이 등록되었습니다.");
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("정상 등록되지 않았습니다.");
         }
@@ -152,7 +166,7 @@ public class ContactService {
         return null;
     }
 
-    private String getUserName(HttpServletRequest request){
+    private String getUserName(HttpServletRequest request) {
         String jwtToken = getJwtFromCookies(request.getCookies());
         if (jwtToken == null) {
             return null;

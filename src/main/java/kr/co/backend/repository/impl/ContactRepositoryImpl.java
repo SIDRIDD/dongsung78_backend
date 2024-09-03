@@ -29,10 +29,13 @@ public class ContactRepositoryImpl implements CustomContactRepository {
                         contact.id,
                         contact.title,
                         contact.description,
-                        contact.user.userId
+                        contact.user.userId,
+                contact.user.name,
+                contact.createdAt
                 ).from(contact)
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
+                .limit(pageable.getPageSize())
+                .orderBy(contact.createdAt.desc());
 
         List<Tuple> result = query.fetch();
 

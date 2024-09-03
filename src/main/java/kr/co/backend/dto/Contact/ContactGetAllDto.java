@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
 public class ContactGetAllDto {
@@ -18,5 +20,8 @@ public class ContactGetAllDto {
 
     private Integer userId;
 
+    private String userName;
+
+    private String time;
 
 }
