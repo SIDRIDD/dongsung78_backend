@@ -58,7 +58,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/user/**", "/auth/api/oauth/**",
                                 "/api/category/**", "/api/contact/**", "/api/order/**",
-                                "/api/product/**", "/auth/**", "/oauth/**").permitAll()
+                                "/api/product/**", "/auth/**", "/oauth/**", "/api/construction/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
