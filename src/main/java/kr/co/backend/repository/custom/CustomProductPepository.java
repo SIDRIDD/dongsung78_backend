@@ -8,4 +8,6 @@ public interface CustomProductPepository {
 
     Page<Tuple> findFromProductGetDto(Pageable pageable, Integer categoryId);
 
+    Page<Tuple> findAllProduct(Pageable pageable);
+
 }

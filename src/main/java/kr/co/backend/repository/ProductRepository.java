@@ -12,5 +12,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, CustomP
     boolean existsByName(String name);
     Page<Tuple> findFromProductGetDto(Pageable pageable, Integer categoryId);
 
+    Page<Tuple> findAllProduct(Pageable pageable);
+
 
 }

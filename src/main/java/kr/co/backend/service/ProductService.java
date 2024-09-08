@@ -43,7 +43,12 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Page<ProductGetDto> getAll(Pageable pageable, @Nullable Integer categoryId) {
 
-        Page<Tuple> results = productRepository.findFromProductGetDto(pageable, categoryId);
+        Page<Tuple> results;
+        if (categoryId == 0) {
+            results = productRepository.findAllProduct(pageable);
+        } else {
+            results = productRepository.findFromProductGetDto(pageable, categoryId);
+        }
 
         List<ProductGetDto> products = results.stream().map(result -> {
             ProductGetDto productGetDto = new ProductGetDto(

@@ -66,4 +66,38 @@ public class ProductRepositoryImpl implements CustomProductPepository {
         return new PageImpl<>(queryResults, pageable, total);
     }
 
+    @Override
+    public Page<Tuple> findAllProduct(Pageable pageable) {
+        QProduct product = QProduct.product;
+
+        JPAQuery<Tuple> query = jpaQueryFactory.select(
+                        product.productId,
+                        product.name,
+                        product.description,
+                        product.price,
+                        product.stock,
+                        product.imageUrl,
+                        product.category.name,
+                        product.priority
+                ).from(product)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        for (Sort.Order order : pageable.getSort()) {
+            PathBuilder pathBuilder = new PathBuilder(product.getType(), product.getMetadata());
+            query.orderBy(new OrderSpecifier(
+                    order.isAscending() ? Order.ASC : Order.DESC,
+                    pathBuilder.get(order.getProperty())
+            ));
+        }
+
+        List<Tuple> queryResults = query.fetch();
+
+        long total = jpaQueryFactory.select(product.count())
+                .from(product)
+                .fetchOne();
+
+        return new PageImpl<>(queryResults, pageable, total);
+    }
+
 }
