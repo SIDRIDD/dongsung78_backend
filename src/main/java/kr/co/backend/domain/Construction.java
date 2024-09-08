@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -19,26 +20,19 @@ public class Construction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer constructionId;
 
-    private String img_url;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    private Category categoryId;
+    private Category category;
 
     private Integer companyCode;
 
     //OO대학교
     private String companyName;
 
-    //OO 동
-    private String companyDetail;
-
-    //OO호 시공사진 입니다.
-    private String companyDescription;
-
+    @CreatedDate
     private LocalDateTime insertDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User userId;
+    private User user;
 }
