@@ -31,12 +31,22 @@ public class ConstructionService {
 
         List<ConstructionListDto> constructinoList = results.stream().map(result -> {
 
+            LocalDateTime dateTime = result.get(5, LocalDateTime.class);
+            String formattedDate = null;
+
+            try {
+                formattedDate = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            } catch (NullPointerException e) {
+                formattedDate = null;
+            }
+
             ConstructionListDto constructionListDto = ConstructionListDto.builder()
                     .constructionId(result.get(0, Integer.class))
                     .companyCode(result.get(1, Integer.class))
                     .companyName(result.get(2, String.class))
                     .userName(result.get(3, String.class))
                     .categoryName(result.get(4, String.class))
+                    .insertDt(formattedDate)
                     .build();
 
             return constructionListDto;

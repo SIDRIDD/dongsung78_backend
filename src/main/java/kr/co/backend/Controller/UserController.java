@@ -19,6 +19,7 @@ import kr.co.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -35,10 +36,22 @@ public class UserController {
     private final AuthService authService;
     private final JwtUtil jwtUtil;
 
+    private final PasswordEncoder passwordEncoder;
+
     @PostMapping("/save")
     public ResponseEntity<String> save(@RequestBody UserSaveDto userDto) {
         userDto.setRole(Role.CUSTOMER);
         return userService.save(userDto);
+
+    }
+
+    @PutMapping("/updateAdmin")
+    public ResponseEntity<?> updateAdmin(@RequestParam("password") Integer password){
+        User user = userRepository.findById(1).orElseThrow(() -> new RuntimeException("찾을 수 없는 유저 아이디 "));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+
+        return ResponseEntity.ok().body("수정 완료");
 
     }
 

@@ -110,12 +110,15 @@ public class ContactService {
     public ContactCommentReturnDto addComment(Integer contactId, String content, HttpServletRequest request) {
         String userName = getUserName(request);
 
-        User user = userRepository.findByName(userName).orElseThrow(() -> new RuntimeException("로그인이 풀려 댓글을 등록할 수 없습니다."));
+        User user = userRepository.findByName(userName).orElseThrow(() -> new RuntimeException("ID 가 존재하지 않습니다."));
 
         Contact contact = contactRepository.findById(contactId).orElseThrow(() -> new RuntimeException("Contact not found"));
         ContactComment comment = new ContactComment();
         comment.setContent(content);
         comment.setContact(contact);
+        if(user.getUserId() == 1){
+            comment.getContact().setStatus(StatusContact.COM);
+        }
         comment.setUser(user);
 
         contactCommentRepository.save(comment);

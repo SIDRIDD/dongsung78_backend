@@ -63,7 +63,8 @@ public class ConstructionRepositoryImpl implements CustomConstructionRepository 
                         construction.companyCode,
                         construction.companyName,
                         construction.user.name,
-                        construction.category.name
+                        construction.category.name,
+                        construction.insertDate
                 ).from(construction)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

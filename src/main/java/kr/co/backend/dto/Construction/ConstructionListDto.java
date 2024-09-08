@@ -19,4 +19,6 @@ public class ConstructionListDto {
     private String userName;
 
     private String categoryName;
+
+    private String insertDt;
 }

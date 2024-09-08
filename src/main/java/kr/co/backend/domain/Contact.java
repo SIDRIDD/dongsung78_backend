@@ -3,16 +3,14 @@ package kr.co.backend.domain;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import kr.co.backend.domain.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor @NoArgsConstructor
 @Getter
+@Setter
 @Builder
 @Entity(name = "contact_tb")
 public class Contact {
