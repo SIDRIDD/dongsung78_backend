@@ -33,6 +33,13 @@ public class Contact {
     @JoinColumn(name = "user_id")
     private User user;
 
+    //0: 시공 문의, 1: 상품 문의
+    private Integer contactType;
+
+    //null: 시공문의, 1~ : productId
+    private Integer typeId;
+
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private StatusContact status;

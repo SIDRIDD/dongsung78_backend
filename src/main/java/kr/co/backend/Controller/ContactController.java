@@ -25,12 +25,17 @@ public class ContactController {
     private final UserService userService;
 
     @GetMapping("/getall")
-    public Page<ContactGetAllDto> get(@PageableDefault(page=0, size = 10, sort = "id")Pageable pageable){
-        return contactService.get(pageable);
+    public Page<ContactGetAllDto> get(@PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable,
+                                      @RequestParam("contacttype") Integer contactType, @RequestParam(value = "typeid", required = false) Integer typeId) {
+        if (contactType == 0) {
+            return contactService.get(pageable);
+        } else {
+            return contactService.getProductContact(pageable, contactType, typeId);
+        }
     }
 
     @GetMapping("/get")
-    public ContactByIdDto getById(@RequestParam("contact_id") Integer contactId){
+    public ContactByIdDto getById(@RequestParam("contact_id") Integer contactId) {
         return contactService.getById(contactId);
     }
 
@@ -40,7 +45,9 @@ public class ContactController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<String> save(@RequestBody ContactSaveDto contactSaveDto, HttpServletRequest request){
+    public ResponseEntity<String> save(@RequestBody ContactSaveDto contactSaveDto, HttpServletRequest request) {
+
         return contactService.save(contactSaveDto, request);
+
     }
 }

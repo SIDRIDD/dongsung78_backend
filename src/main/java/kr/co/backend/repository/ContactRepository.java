@@ -12,4 +12,5 @@ public interface ContactRepository extends JpaRepository<Contact, Integer>, Cust
     Page<Tuple> getAll(Pageable pageable);
 
 
+    Page<Tuple> getProductContact(Pageable pageable, Integer contactType, Integer typeId);
 }

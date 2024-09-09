@@ -30,20 +30,50 @@ public class ContactRepositoryImpl implements CustomContactRepository {
                         contact.title,
                         contact.description,
                         contact.user.userId,
-                contact.user.name,
-                contact.createdAt
+                        contact.user.name,
+                        contact.createdAt
                 ).from(contact)
+                .where(contact.contactType.eq(0))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(contact.createdAt.desc());
 
         List<Tuple> result = query.fetch();
 
-        long total = jpaQueryFactory
-                .select(contact.count())
-                .from(contact)
-                .fetchOne();
+        long total = jpaQueryFactory.select(
+                        contact.id
+                ).from(contact)
+                .where(contact.contactType.eq(0))
+                .fetchCount();
 
+
+        return new PageImpl<>(result, pageable, total);
+    }
+
+    @Override
+    public Page<Tuple> getProductContact(Pageable pageable, Integer contactType, Integer typeId) {
+        QContact contact = QContact.contact;
+
+        JPAQuery<Tuple> query = jpaQueryFactory.select(
+                        contact.id,
+                        contact.title,
+                        contact.description,
+                        contact.user.userId,
+                        contact.user.name,
+                        contact.createdAt
+                ).from(contact)
+                .where(contact.contactType.eq(contactType).and(contact.typeId.eq(typeId)))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(contact.createdAt.desc());
+
+        List<Tuple> result = query.fetch();
+
+        long total = jpaQueryFactory.select(
+                        contact.id
+                ).from(contact)
+                .where(contact.contactType.eq(1))
+                .fetchCount();
 
         return new PageImpl<>(result, pageable, total);
     }

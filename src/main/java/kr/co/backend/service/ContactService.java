@@ -146,6 +146,8 @@ public class ContactService {
                     .user(user)
                     .title(contactSaveDto.getTitle())
                     .description(contactSaveDto.getDescription())
+                    .contactType(contactSaveDto.getContactType())
+                    .typeId(contactSaveDto.getTypeId() != null ? contactSaveDto.getTypeId() : null)
                     .status(StatusContact.YET)
                     .build();
 
@@ -181,6 +183,37 @@ public class ContactService {
         }
 
         return userName;
+    }
+
+    public Page<ContactGetAllDto> getProductContact(Pageable pageable, Integer contactType, Integer typeId) {
+        Page<Tuple> results = contactRepository.getProductContact(pageable, contactType, typeId);
+        List<ContactGetAllDto> contactGetAllDtos = results.stream().map(result -> {
+
+            LocalDateTime dateTime = result.get(5, LocalDateTime.class);
+            String formattedDate = null;
+
+            try {
+                formattedDate = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            } catch (NullPointerException e) {
+                formattedDate = null;
+            }
+
+            ContactGetAllDto contactGetAllDto = new ContactGetAllDto(
+                    result.get(0, Integer.class),
+                    result.get(1, String.class),
+                    result.get(2, String.class),
+                    result.get(3, Integer.class),
+                    result.get(4, String.class),
+                    formattedDate
+            );
+
+            return contactGetAllDto;
+        }).collect(Collectors.toList());
+
+        long total = results.getTotalElements();
+
+        return new PageImpl<>(contactGetAllDtos, pageable, total);
+
     }
 }
 

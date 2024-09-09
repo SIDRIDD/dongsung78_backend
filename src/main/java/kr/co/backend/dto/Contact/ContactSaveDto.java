@@ -20,4 +20,8 @@ public class ContactSaveDto {
 
     private String description;
 
+    private Integer contactType;
+
+    private Integer typeId;
+
 }
