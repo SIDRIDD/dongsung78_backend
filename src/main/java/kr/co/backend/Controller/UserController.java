@@ -70,13 +70,13 @@ public class UserController {
         Cookie cookie_refresh = new Cookie("refreshToken", refreshToken);
         cookie_refresh.setHttpOnly(true);
         cookie_refresh.setPath("/");
-        cookie_refresh.setMaxAge(69 * 60 * 15 * 10);
+        cookie_refresh.setMaxAge(69 * 60 * 15);
         response.addCookie(cookie_refresh);
 
         Cookie cookie = new Cookie("token", token);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * 15);
+        cookie.setMaxAge(60 * 15);
         response.addCookie(cookie);
     }
 
@@ -87,11 +87,32 @@ public class UserController {
         else return Boolean.FALSE;
     }
 
-    @GetMapping("/check")
+//    @GetMapping("/check")
+    @PostMapping("/check")
     public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "token", required = false) @Nullable String token, HttpServletResponse response) {
         if (token != null && !token.isEmpty()) {
             try {
                 String username = jwtUtil.validateToken(token);
+                if (username != null) {
+                    String accessToken = jwtUtil.generateToken(username);
+                    setAccessToken(accessToken, response);
+                    return ResponseEntity.ok().body("Invalid Token");
+                } else {
+                    return ResponseEntity.status(401).body("Invalid user");
+                }
+            } catch (Exception e) {
+                return ResponseEntity.status(401).body("Invalid token");
+            }
+        } else {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> checkRefreshTokenStatus(@CookieValue(value = "refreshToken", required = false) @Nullable String refreshToken, HttpServletResponse response) {
+        if (refreshToken != null && !refreshToken.isEmpty()) {
+            try {
+                String username = jwtUtil.validateToken(refreshToken);
                 if (username != null) {
                     String accessToken = jwtUtil.generateToken(username);
                     setAccessToken(accessToken, response);
@@ -112,7 +133,7 @@ public class UserController {
         Cookie cookie = new Cookie("token", accessToken);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * 15);
+        cookie.setMaxAge(60 *15);
         response.addCookie(cookie);
 
     }

@@ -44,18 +44,30 @@ public class OAuthController {
 
     @Value("${jwt.expiration}")
     private long expiration;
+
+    @Value("${naver.client-id}")
+    private String naverClientId;
+
+    @Value("${naver.client-secret}")
+    private String naverSecret;
+
+    @Value("${kakao.client-id}")
+    private String kakaoClientId;
+
+    @Value("${kakao.redirect-uri}")
+    private String kakaoRedirectUri;
+
     private final OAuthService oAuthService;
 
     @GetMapping("/oauth/naver/redirect")
     public void NaverredirectUriProcessor(@RequestParam("code") String code,
                                           @RequestParam("state") String state,
                                           HttpServletResponse response) throws IOException {
-        System.out.println("code : " + code);
-        System.out.println("state : " + state);
 
         String grantType = "grant_type=authorization_code";
-        String clientId = "client_id=FvadT3Ycf51hJ7DHEqk2";
-        String clientSecret = "client_secret=jF2MwAHiTa";
+        String clientId = "client_id=" + naverClientId;
+
+        String clientSecret = "client_secret=" + naverSecret;
 
         String url = "https://nid.naver.com/oauth2.0/token" +
                 "?" + grantType +
@@ -99,16 +111,8 @@ public class OAuthController {
         Cookie tokenCookie = new Cookie("token", token);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/"); // 모든 경로에서 쿠키 접근 가능
-        tokenCookie.setMaxAge(60 * 60);
+        tokenCookie.setMaxAge(60 * 15);
         response.addCookie(tokenCookie);
-
-//        Cookie userNameCookie = new Cookie("userName", URLEncoder.encode(userName, "UTF-8"));
-//        userNameCookie.setPath("/");
-//        response.addCookie(userNameCookie);
-//
-//        Cookie emailCookie = new Cookie("email", URLEncoder.encode(email, "UTF-8"));
-//        emailCookie.setPath("/");
-//        response.addCookie(emailCookie);
 
         System.out.println("userName 확인 : " + userName);
         response.sendRedirect("http://localhost:3000/");
@@ -122,8 +126,6 @@ public class OAuthController {
 
         // 액세스 토큰 요청을 위한 파라미터 설정
         String grantType = "authorization_code";
-        String clientId = "1ea96dd040d59d0fe987f530c4755afb";
-        String redirectUri = "http://localhost:8080/oauth/kakao/redirect"; // 카카오 앱 설정에서 등록한 리디렉션 URI
 
         // 카카오 토큰 요청 URL
         String url = "https://kauth.kakao.com/oauth/token";
@@ -131,8 +133,8 @@ public class OAuthController {
         // 요청 본문 설정
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", grantType);
-        params.add("client_id", clientId);
-        params.add("redirect_uri", redirectUri);
+        params.add("client_id", kakaoClientId);
+        params.add("redirect_uri", kakaoRedirectUri);
         params.add("code", code);
 
         // POST 요청 보내기
@@ -195,7 +197,7 @@ public class OAuthController {
         Cookie tokenCookie = new Cookie("token", token);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/");
-        tokenCookie.setMaxAge(60 * 60 * 15);
+        tokenCookie.setMaxAge(60 * 15);
         response.addCookie(tokenCookie);
     }
 
@@ -210,7 +212,7 @@ public class OAuthController {
         Cookie tokenCookie = new Cookie("RefreshToken", token);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/");
-        tokenCookie.setMaxAge(60 * 60 * 15 * 10);
+        tokenCookie.setMaxAge(60 * 60 * 2);
         response.addCookie(tokenCookie);
     }
 

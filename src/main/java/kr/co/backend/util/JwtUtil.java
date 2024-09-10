@@ -1,10 +1,7 @@
 // JwtUtil.java
 package kr.co.backend.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwt;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import kr.co.backend.filter.JwtAuthenticationFilter;
@@ -89,10 +86,26 @@ public class JwtUtil {
     }
 
     public String validateToken(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secretKey) // 수정된 부분
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secretKey) // 시크릿 키로 서명 확인
+                    .parseClaimsJws(token) // 토큰 파싱
+                    .getBody();
+
+            // 만료 시간 확인
+            if (claims.getExpiration().before(new Date())) {
+                throw new IllegalArgumentException("토큰이 만료되었습니다.");
+            }
+
+            return claims.getSubject(); // 토큰이 유효하면 subject 반환
+        } catch (ExpiredJwtException e) {
+            throw new IllegalArgumentException("토큰이 만료되었습니다.", e);
+        } catch (SignatureException e) {
+            throw new IllegalArgumentException("토큰의 서명이 유효하지 않습니다.", e);
+        } catch (MalformedJwtException e) {
+            throw new IllegalArgumentException("잘못된 토큰 형식입니다.", e);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.", e);
+        }
     }
 }
