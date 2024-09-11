@@ -101,18 +101,8 @@ public class OAuthController {
 
         oAuthService.oauthUserSave(userName, "naver");
 
-        String token = Jwts.builder()
-                .setSubject(userName)
-                .claim("name", userName.concat("_").concat("naver"))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
-
-        Cookie tokenCookie = new Cookie("token", token);
-        tokenCookie.setHttpOnly(true);
-        tokenCookie.setPath("/"); // 모든 경로에서 쿠키 접근 가능
-        tokenCookie.setMaxAge(60 * 15);
-        response.addCookie(tokenCookie);
+        getnerateToken(userName, response);
+        getnerateRefreshToken(userName, response);
 
         System.out.println("userName 확인 : " + userName);
         response.sendRedirect("http://localhost:3000/");
@@ -209,7 +199,7 @@ public class OAuthController {
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
 
-        Cookie tokenCookie = new Cookie("RefreshToken", token);
+        Cookie tokenCookie = new Cookie("refreshToken", token);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/");
         tokenCookie.setMaxAge(60 * 60 * 2);

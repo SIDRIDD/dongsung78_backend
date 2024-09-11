@@ -53,13 +53,18 @@ public class JwtUtil {
         } catch (SignatureException e) {
             logger.error("Invalid JWT signature", e);
             throw new IllegalArgumentException("Invalid JWT signature", e);
-        }catch (Exception e) {
+        } catch (IllegalArgumentException e){
+            logger.error("Not Found Token", e);
+            throw new IllegalArgumentException("Not Found Token.");
+        } catch (Exception e) {
             logger.error("JWT token parsing failed", e);
             throw new IllegalArgumentException("JWT token parsing failed", e);
         }
     }
 
     public boolean isTokenExpired(String token) {
+        Date checkDate = getClaimsFromToken(token).getExpiration();
+        Date newDateCheck = new Date();
         return getClaimsFromToken(token).getExpiration().before(new Date());
     }
 
@@ -91,11 +96,6 @@ public class JwtUtil {
                     .setSigningKey(secretKey) // 시크릿 키로 서명 확인
                     .parseClaimsJws(token) // 토큰 파싱
                     .getBody();
-
-            // 만료 시간 확인
-            if (claims.getExpiration().before(new Date())) {
-                throw new IllegalArgumentException("토큰이 만료되었습니다.");
-            }
 
             return claims.getSubject(); // 토큰이 유효하면 subject 반환
         } catch (ExpiredJwtException e) {

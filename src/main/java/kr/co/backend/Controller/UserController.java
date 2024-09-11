@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @PutMapping("/updateAdmin")
-    public ResponseEntity<?> updateAdmin(@RequestParam("password") Integer password){
+    public ResponseEntity<?> updateAdmin(@RequestParam("password") Integer password) {
         User user = userRepository.findById(1).orElseThrow(() -> new RuntimeException("찾을 수 없는 유저 아이디 "));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
@@ -65,21 +65,6 @@ public class UserController {
         }
     }
 
-    private void setCookie(String refreshToken, String token, HttpServletResponse response) {
-
-        Cookie cookie_refresh = new Cookie("refreshToken", refreshToken);
-        cookie_refresh.setHttpOnly(true);
-        cookie_refresh.setPath("/");
-        cookie_refresh.setMaxAge(69 * 60 * 15);
-        response.addCookie(cookie_refresh);
-
-        Cookie cookie = new Cookie("token", token);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(60 * 15);
-        response.addCookie(cookie);
-    }
-
 
     @GetMapping("/check-signup")
     public Boolean checkSignUp(@RequestParam("username") String userName) {
@@ -87,16 +72,18 @@ public class UserController {
         else return Boolean.FALSE;
     }
 
-//    @GetMapping("/check")
-    @PostMapping("/check")
-    public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "token", required = false) @Nullable String token, HttpServletResponse response) {
-        if (token != null && !token.isEmpty()) {
+    //    @GetMapping("/check")
+    @GetMapping("/refresh-check")
+    public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "refreshToken", required = false) @Nullable String token, HttpServletResponse response) {
+        boolean refreshTokenIsValid = jwtUtil.isTokenExpired(token);
+
+        if (token != null && !token.isEmpty() && !refreshTokenIsValid) {
             try {
                 String username = jwtUtil.validateToken(token);
                 if (username != null) {
                     String accessToken = jwtUtil.generateToken(username);
                     setAccessToken(accessToken, response);
-                    return ResponseEntity.ok().body("Invalid Token");
+                    return ResponseEntity.status(HttpStatus.OK).body("Token Generated.");
                 } else {
                     return ResponseEntity.status(401).body("Invalid user");
                 }
@@ -104,13 +91,13 @@ public class UserController {
                 return ResponseEntity.status(401).body("Invalid token");
             }
         } else {
-            return ResponseEntity.status(401).body("Not authenticated");
+            return ResponseEntity.status(403).body("Expired refreshToken");
         }
     }
 
     @PostMapping("/refresh-token")
     public ResponseEntity<?> checkRefreshTokenStatus(@CookieValue(value = "refreshToken", required = false) @Nullable String refreshToken, HttpServletResponse response) {
-        if (refreshToken != null && !refreshToken.isEmpty()) {
+        if (refreshToken != null && !refreshToken.isEmpty() && jwtUtil.isTokenExpired(refreshToken)) {
             try {
                 String username = jwtUtil.validateToken(refreshToken);
                 if (username != null) {
@@ -133,7 +120,7 @@ public class UserController {
         Cookie cookie = new Cookie("token", accessToken);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(60 *15);
+        cookie.setMaxAge(60 * 15); // token 15분
         response.addCookie(cookie);
 
     }

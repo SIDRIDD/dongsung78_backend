@@ -47,7 +47,7 @@ public class AuthService {
         Cookie cookie = new Cookie("refreshToken", refreshToken);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(60 *60 * 2);
+        cookie.setMaxAge(60 * 60 * 2); //refreshToken 2시간
         response.addCookie(cookie);
     }
 
@@ -56,7 +56,7 @@ public class AuthService {
         cookie.setHttpOnly(true);
 //        cookie.setSecure(true); -> 배포 환경에서는 https 를 사용해야 하기 때문에 이걸 추가해야함
         cookie.setPath("/");
-        cookie.setMaxAge(60 *15);
+        cookie.setMaxAge(10);
         response.addCookie(cookie);
     }
 
