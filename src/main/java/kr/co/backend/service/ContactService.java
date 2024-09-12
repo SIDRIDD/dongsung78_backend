@@ -215,5 +215,23 @@ public class ContactService {
         return new PageImpl<>(contactGetAllDtos, pageable, total);
 
     }
+
+    public ResponseEntity<?> deleteById(Integer itemId) {
+        if(!contactRepository.existsById(itemId)) {
+            return ResponseEntity.badRequest().body("존재하지 않는 게시글 입니다.");
+        }
+
+        contactRepository.deleteById(itemId);
+        return ResponseEntity.ok().body("삭제되었습니다.");
+    }
+
+    public ResponseEntity<?> deleteCommentsById(Integer commentsId){
+        if(!contactCommentRepository.existsById(commentsId)){
+            return ResponseEntity.badRequest().body("존재하지 않는 게시글 입니다.");
+        }
+
+        contactCommentRepository.deleteById(commentsId);
+        return ResponseEntity.ok().body("삭제되었습니다.");
+    }
 }
 

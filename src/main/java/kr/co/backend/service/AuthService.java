@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -39,7 +41,7 @@ public class AuthService {
         String refreshToken = jwtUtil.generateToken(user.getName());
         addRefreshTokenToCookie(response, refreshToken);
 
-        return ResponseEntity.ok().body("로그인 되었습니다.");
+        return ResponseEntity.ok().body(Map.of("message", "로그인 되었습니다.", "userName", user.getName()));
     }
 
     private void addRefreshTokenToCookie(HttpServletResponse response, String refreshToken) {

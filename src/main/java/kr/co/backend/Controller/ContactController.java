@@ -44,10 +44,26 @@ public class ContactController {
         return contactService.addComment(id, commentRequestDto.getContent(), request);
     }
 
+    @DeleteMapping("/comment/delete")
+    public ResponseEntity<?> deleteComments(@RequestParam(value = "commentid",  required = false) Integer commentId) {
+        if(commentId == null) {
+            return ResponseEntity.badRequest().body("commentId 가 존재 하지 않습니다.");
+        }
+        return contactService.deleteCommentsById(commentId);
+    }
+
     @PostMapping("/save")
     public ResponseEntity<String> save(@RequestBody ContactSaveDto contactSaveDto, HttpServletRequest request) {
 
         return contactService.save(contactSaveDto, request);
 
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteById(@RequestParam(value = "itemid", required = false) Integer itemId){
+        if(itemId == null){
+            return ResponseEntity.badRequest().body("itemid 가 존재하지 않습니다.");
+        }
+        return contactService.deleteById(itemId);
     }
 }
