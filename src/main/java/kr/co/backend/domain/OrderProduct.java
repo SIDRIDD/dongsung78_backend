@@ -25,11 +25,12 @@ public class OrderProduct {
     private int orderPrice;
     private int count;
 
-    public static OrderProduct createOrderProduct(Product product, int orderPrice, int count){
+    public static OrderProduct createOrderProduct(Product product, int orderPrice, int count, Order order){
         OrderProduct orderProduct = new OrderProduct();
         orderProduct.setProduct(product);
         orderProduct.setOrderPrice(orderPrice);
         orderProduct.setCount(count);
+        orderProduct.setOrder(order);
 
         product.removeStock(count);
         return orderProduct;

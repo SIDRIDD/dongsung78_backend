@@ -62,14 +62,11 @@ public class Order {
     protected Order(){
     }
 
-    public static Order createOrder(User user, Delivery delivery, OrderProduct... orderProducts){
+    public static Order createOrder(User user, Delivery delivery){
         Order order = new Order();
 
         order.setUser(user);
         order.setDelivery(delivery);
-        for(OrderProduct orderProduct : orderProducts){
-            order.addOrderProduct(orderProduct);
-        }
 
         order.setStatus(Status.ORDER);
         order.setOrderDate(LocalDateTime.now());

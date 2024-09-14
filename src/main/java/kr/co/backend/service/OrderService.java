@@ -40,61 +40,51 @@ public class OrderService {
     public ResponseEntity<String> order(List<OrderDto> orderDtoList, HttpServletRequest request) {
         String userName = getUserName(request);
 
-        for (OrderDto orderDto : orderDtoList) {
-            User user = userRepository.findByName(userName)
-                    .orElseThrow(() -> new RuntimeException("존재 하지 않는 userId 입니다."));
+        User user = userRepository.findByName(userName)
+                .orElseThrow(() -> new RuntimeException("존재 하지 않는 userId 입니다."));
 
+        OrderDto firstOrderDto = orderDtoList.get(0);
+
+        Address address = Address.builder()
+                .roadAddress(firstOrderDto.getRoadAddress())
+                .detailAddress(firstOrderDto.getDetailAddress())
+                .zipcode(firstOrderDto.getZipCode())
+                .build();
+
+        if (user.getOauthProvider() != null) {
+
+            user.setAddress(address);
+            user.setPhoneNumber(firstOrderDto.getPhoneNumber());
+            userRepository.save(user);
+            entityManager.flush();
+
+        } else {
+
+            if (user.getAddress().getRoadAddress() == null) {
+                user.setAddress(address);
+                userRepository.save(user);
+            }
+        }
+
+        Delivery delivery = Delivery.builder()
+                .address(address)
+                .detail(firstOrderDto.getRequest())
+                .status(DeliveryStatus.READY)
+                .build();
+
+        Order order = Order.createOrder(user, delivery);
+
+        for (OrderDto orderDto : orderDtoList) {
             Product product = productRepository.findById(orderDto.getProductId())
                     .orElseThrow(() -> new RuntimeException("존재 하지 않는 productId 입니다."));
 
+            OrderProduct orderProduct = OrderProduct.createOrderProduct(product, product.getPrice(), orderDto.getCount(), order);
 
-            if (user.getOauthProvider() != null) {
-                Address address = Address.builder()
-                        .roadAddress(orderDto.getRoadAddress())
-                        .detailAddress(orderDto.getDetailAddress())
-                        .zipcode(orderDto.getZipCode())
-                        .build();
-                user.setAddress(address);
-                user.setPhoneNumber(orderDto.getPhoneNumber());
-                userRepository.save(user);
-                entityManager.flush();
+            orderProductRepository.save(orderProduct);
 
-                Delivery delivery = Delivery.builder()
-                        .address(address)
-                        .detail(orderDto.getRequest())
-                        .status(DeliveryStatus.READY)
-                        .build();
-
-                OrderProduct orderProduct = OrderProduct.createOrderProduct(product, product.getPrice(), orderDto.getCount());
-
-                Order order = Order.createOrder(user, delivery, orderProduct);
-
-                orderRepository.save(order);
-            } else {
-                Address address = Address.builder()
-                        .roadAddress(orderDto.getRoadAddress())
-                        .detailAddress(orderDto.getDetailAddress())
-                        .zipcode(orderDto.getZipCode())
-                        .build();
-
-                if(user.getAddress().getRoadAddress() == null){
-                    user.setAddress(address);
-                    userRepository.save(user);
-                }
-
-                Delivery delivery = Delivery.builder()
-                        .address(address)
-                        .detail(orderDto.getRequest())
-                        .status(DeliveryStatus.READY)
-                        .build();
-
-                OrderProduct orderProduct = OrderProduct.createOrderProduct(product, product.getPrice(), orderDto.getCount());
-
-                Order order = Order.createOrder(user, delivery, orderProduct);
-
-                orderRepository.save(order);
-            }
         }
+        orderRepository.save(order);
+
 
         return ResponseEntity.ok().body("주문이 완료되었습니다.");
     }
