@@ -2,14 +2,12 @@ package kr.co.backend.dto.User;
 
 
 import kr.co.backend.domain.Address;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Builder
 @Setter
 public class AddressDto {
     private String roadAddress;

@@ -1,7 +1,10 @@
 package kr.co.backend.service;
 
 
+import kr.co.backend.domain.Address;
 import kr.co.backend.domain.User;
+import kr.co.backend.dto.User.AddressDto;
+import kr.co.backend.dto.User.UserUpdateDto;
 import kr.co.backend.repository.UserRepository;
 import kr.co.backend.dto.User.UserSaveDto;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +22,8 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public ResponseEntity<String> save(UserSaveDto userDto){
-        if(userRepository.existsByName(userDto.getName())){
+    public ResponseEntity<String> save(UserSaveDto userDto) {
+        if (userRepository.existsByName(userDto.getName())) {
             return ResponseEntity.badRequest().body("이미 존재하는 회원입니다.");
         }
 
@@ -32,11 +35,51 @@ public class UserService {
 
     }
 
-    public User findByName(String userName){
+    public User findByName(String userName) {
         return userRepository.findByName(userName).get();
     }
 
 
+    public ResponseEntity<?> update(UserUpdateDto userUpdateDto) {
+        try {
+            User user = userRepository.findById(userUpdateDto.getUserId()).orElseThrow(() -> new RuntimeException("찾을 수 없는 유저 아이디 "));
+
+            Address address = Address.builder()
+                    .roadAddress(userUpdateDto.getAddress().getRoadAddress())
+                    .detailAddress(userUpdateDto.getAddress().getDetailAddress())
+                    .zipcode(userUpdateDto.getAddress().getZipcode())
+                    .build();
+
+            user.setUserId(userUpdateDto.getUserId());
+            user.setEmail(userUpdateDto.getEmail());
+            user.setPhoneNumber(userUpdateDto.getPhoneNumber());
+            user.setAddress(address);
+            userRepository.save(user);
+            return ResponseEntity.ok().body("수정이 완료되었습니다.");
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
 
 
+    public UserUpdateDto getUser(String userName) {
+        User user = userRepository.findByName(userName)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 유저이름입니다."));
+
+        AddressDto address = AddressDto.builder()
+                .roadAddress(user.getAddress().getRoadAddress())
+                .detailAddress(user.getAddress().getDetailAddress())
+                .zipcode(user.getAddress().getZipcode())
+                .build();
+
+        UserUpdateDto userUpdateDto = UserUpdateDto.builder()
+                .userId(user.getUserId())
+                .name(user.getName())
+                .address(address)
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .build();
+
+        return userUpdateDto;
+    }
 }

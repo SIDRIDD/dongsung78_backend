@@ -8,10 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.co.backend.domain.Delivery;
 import kr.co.backend.domain.Role;
 import kr.co.backend.domain.User;
-import kr.co.backend.dto.User.LoginRequestDto;
-import kr.co.backend.dto.User.LoginResponseDto;
-import kr.co.backend.dto.User.OldDeliveryDto;
-import kr.co.backend.dto.User.UserSaveDto;
+import kr.co.backend.dto.User.*;
 import kr.co.backend.repository.UserRepository;
 import kr.co.backend.service.AuthService;
 import kr.co.backend.service.UserService;
@@ -45,14 +42,18 @@ public class UserController {
 
     }
 
-    @PutMapping("/updateAdmin")
-    public ResponseEntity<?> updateAdmin(@RequestParam("password") Integer password) {
-        User user = userRepository.findById(1).orElseThrow(() -> new RuntimeException("찾을 수 없는 유저 아이디 "));
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
+    @PutMapping("/update-user")
+    public ResponseEntity<?> updateAdmin(@RequestBody UserUpdateDto userUpdateDto) {
+        return userService.update(userUpdateDto);
 
-        return ResponseEntity.ok().body("수정 완료");
+    }
 
+    @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+    @GetMapping("/get-user")
+    public UserUpdateDto getUser(@CookieValue("token") String token){
+        String userName = jwtUtil.getUserNameFromToken(token);
+
+        return userService.getUser(userName);
     }
 
     @PostMapping("/login")
