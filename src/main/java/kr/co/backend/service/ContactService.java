@@ -56,7 +56,11 @@ public class ContactService {
 
         Page<Tuple> results = contactRepository.getAll(pageable);
 
+
+
         List<ContactGetAllDto> contactGetAllDtos = results.stream().map(result -> {
+
+            Integer commentCount = contactCommentRepository.countComment(result.get(0, Integer.class));
 
             LocalDateTime dateTime = result.get(5, LocalDateTime.class);
             String formattedDate = null;
