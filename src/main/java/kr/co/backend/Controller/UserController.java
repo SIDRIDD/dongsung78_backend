@@ -48,7 +48,6 @@ public class UserController {
 
     }
 
-    @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
     @GetMapping("/get-user")
     public UserUpdateDto getUser(@CookieValue("token") String token){
         String userName = jwtUtil.getUserNameFromToken(token);
@@ -76,6 +75,9 @@ public class UserController {
     //    @GetMapping("/check")
     @GetMapping("/refresh-check")
     public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "refreshToken", required = false) @Nullable String token, HttpServletResponse response) {
+        if(token == null){
+            return ResponseEntity.ok().body("로그인 안된 상태");
+        }
         boolean refreshTokenIsValid = jwtUtil.isTokenExpired(token);
 
         if (token != null && !token.isEmpty() && !refreshTokenIsValid) {

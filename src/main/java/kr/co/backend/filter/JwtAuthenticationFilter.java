@@ -20,6 +20,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 @Component
@@ -48,8 +49,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // 특정 경로에 대해 JWT 검사 제외
-        if (pathMatcher.match("/api/user/check-signup", path) || pathMatcher.match("/api/category/**", path)
-        || pathMatcher.match("/api/product/**", path)) {
+        if (pathMatcher.match("/api/user/check-signup", path)
+                || pathMatcher.match("/api/category/**", path)
+                || pathMatcher.match("/api/product/**", path)) {
             chain.doFilter(request, response);
             return;
         }
@@ -59,9 +61,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String jwt = null;
 
-        if(cookies != null){
-            for(Cookie cookie : cookies){
-                if("token".equals(cookie.getName())){
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("token".equals(cookie.getName())) {
                     jwt = cookie.getValue();
                     break;
 
@@ -88,12 +90,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             } catch (Exception e) {
                 logger.error("JWT token parsing failed", e);
             }
-        } else {
-            logger.warn("JWT token is missing in cookies");
         }
+//        else {
+//            logger.warn("JWT token is missing in cookies");
+//        }
 
         try {
-            chain.  doFilter(request, response);
+            chain.doFilter(request, response);
         } catch (HttpMessageNotWritableException e) {
             logger.error("HttpMessageNotWritableException occurred", e);
             if (!response.isCommitted()) {
