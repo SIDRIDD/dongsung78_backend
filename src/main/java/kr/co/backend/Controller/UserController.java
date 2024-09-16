@@ -65,6 +65,30 @@ public class UserController {
         }
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> handleLogout(HttpServletResponse response) {
+        System.out.println("logout");
+        // accessToken 쿠키 삭제
+        Cookie accessTokenCookie = new Cookie("token", null);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setMaxAge(0); // 쿠키를 즉시 만료시킴
+//        accessTokenCookie.setSecure(true); // HTTPS에서만 전송
+
+        // refreshToken 쿠키 삭제
+        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setMaxAge(0); // 쿠키를 즉시 만료시킴
+//        refreshTokenCookie.setSecure(true);
+
+
+        // 쿠키를 응답에 추가해 브라우저에서 삭제되도록 함
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
+        return ResponseEntity.ok().build();
+    }
+
 
     @GetMapping("/check-signup")
     public Boolean checkSignUp(@RequestParam("username") String userName) {
@@ -76,7 +100,7 @@ public class UserController {
     @GetMapping("/refresh-check")
     public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "refreshToken", required = false) @Nullable String token, HttpServletResponse response) {
         if(token == null){
-            return ResponseEntity.ok().body("로그인 안된 상태");
+            return ResponseEntity.badRequest().body("로그인 안된 상태");
         }
         boolean refreshTokenIsValid = jwtUtil.isTokenExpired(token);
 
@@ -119,7 +143,6 @@ public class UserController {
     }
 
     private void setAccessToken(String accessToken, HttpServletResponse response) {
-        System.out.println("제너레이트토큰!!!!!!!!!!!!!");
         Cookie cookie = new Cookie("token", accessToken);
         cookie.setHttpOnly(true);
         cookie.setPath("/");

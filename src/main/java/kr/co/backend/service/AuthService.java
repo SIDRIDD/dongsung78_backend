@@ -58,14 +58,7 @@ public class AuthService {
         cookie.setHttpOnly(true);
 //        cookie.setSecure(true); -> 배포 환경에서는 https 를 사용해야 하기 때문에 이걸 추가해야함
         cookie.setPath("/");
-        cookie.setMaxAge(10);
+        cookie.setMaxAge(60 * 15);
         response.addCookie(cookie);
-    }
-
-
-
-    public String setAuthCookie(String token, HttpServletResponse response) {
-        addTokenToCookie(response, token);
-        return token;
     }
 }

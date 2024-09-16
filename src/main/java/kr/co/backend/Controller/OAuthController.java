@@ -105,7 +105,7 @@ public class OAuthController {
         getnerateRefreshToken(userName, response);
 
         System.out.println("userName 확인 : " + userName);
-        response.sendRedirect("http://localhost:3000/");
+        response.sendRedirect("http://localhost:3000/oauth-login-success/" + userName);
 
     }
 
@@ -167,12 +167,12 @@ public class OAuthController {
         if (userRepository.existsByName(userName)) {
             getnerateToken(userName, response);
             getnerateRefreshToken(userName, response);
-            response.sendRedirect("http://localhost:3000/");
+            response.sendRedirect("http://localhost:3000/oauth-login-success/" + userName);
         } else {
             oAuthService.oauthUserSave(userName, "kakao");
             getnerateToken(userName, response);
             getnerateRefreshToken(userName, response);
-            response.sendRedirect("http://localhost:3000/");
+            response.sendRedirect("http://localhost:3000/oauth-login-success/" + userName);
         }
     }
 
