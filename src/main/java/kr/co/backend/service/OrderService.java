@@ -4,18 +4,15 @@ package kr.co.backend.service;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import kr.co.backend.domain.*;
-import kr.co.backend.dto.OrderDto;
+import kr.co.backend.dto.Order.OrderDto;
 import kr.co.backend.repository.OrderProductRepository;
 import kr.co.backend.repository.OrderRepository;
 import kr.co.backend.repository.ProductRepository;
 import kr.co.backend.repository.UserRepository;
 import kr.co.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,9 +34,6 @@ public class OrderService {
 
     private final EntityManager entityManager;
 
-    /**
-     * 주문
-     */
     public ResponseEntity<String> order(List<OrderDto> orderDtoList, HttpServletRequest request) {
         String userName = getUserName(request);
 
@@ -125,9 +119,6 @@ public class OrderService {
         }
     }
 
-    /**
-     * 취소
-     */
 
     public ResponseEntity<String> cancelOrder(Long orderId) {
 
@@ -138,11 +129,6 @@ public class OrderService {
 
         return ResponseEntity.ok().body("삭제되었습니다.");
     }
-
-
-    /**
-     * 검색
-     */
 
 
 }

@@ -2,7 +2,6 @@ package kr.co.backend.domain;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import kr.co.backend.domain.User;
 import lombok.*;
 
 import java.time.LocalDateTime;

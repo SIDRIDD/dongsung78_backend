@@ -1,13 +1,11 @@
 package kr.co.backend.domain;
 
 import jakarta.persistence.*;
-import kr.co.backend.exception.NotEnoughStockException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 
 
 @AllArgsConstructor
@@ -57,10 +55,9 @@ public class Product {
         int restStock = this.stock - stock;
         if(restStock < 0){
             System.out.println("stock: " + stock);
-            throw new NotEnoughStockException("재고가 부족합니다.");
+            throw new RuntimeException("재고가 부족합니다.");
         }
         this.stock = restStock;
     }
 
-    // Getters and Setters
 }

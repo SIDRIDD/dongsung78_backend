@@ -4,7 +4,6 @@ package kr.co.backend.service;
 import com.querydsl.core.Tuple;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import kr.co.backend.domain.ContactComment;
 import kr.co.backend.domain.StatusContact;
 import kr.co.backend.domain.User;
@@ -15,8 +14,6 @@ import kr.co.backend.domain.Contact;
 import kr.co.backend.repository.UserRepository;
 import kr.co.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
-import org.hibernate.sql.ForUpdateFragment;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,12 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -117,7 +109,7 @@ public class ContactService {
         ContactComment comment = new ContactComment();
         comment.setContent(content);
         comment.setContact(contact);
-        if(user.getUserId() == 1){
+        if (user.getUserId() == 1) {
             comment.getContact().setStatus(StatusContact.COM);
         }
         comment.setUser(user);
@@ -133,7 +125,6 @@ public class ContactService {
 
         return contactCommentReturnDto;
     }
-
 
 
     public ResponseEntity<String> save(ContactSaveDto contactSaveDto, HttpServletRequest request) {
@@ -220,7 +211,7 @@ public class ContactService {
     }
 
     public ResponseEntity<?> deleteById(Integer itemId) {
-        if(!contactRepository.existsById(itemId)) {
+        if (!contactRepository.existsById(itemId)) {
             return ResponseEntity.badRequest().body("존재하지 않는 게시글 입니다.");
         }
 
@@ -228,8 +219,8 @@ public class ContactService {
         return ResponseEntity.ok().body("삭제되었습니다.");
     }
 
-    public ResponseEntity<?> deleteCommentsById(Integer commentsId){
-        if(!contactCommentRepository.existsById(commentsId)){
+    public ResponseEntity<?> deleteCommentsById(Integer commentsId) {
+        if (!contactCommentRepository.existsById(commentsId)) {
             return ResponseEntity.badRequest().body("존재하지 않는 게시글 입니다.");
         }
 
@@ -237,10 +228,10 @@ public class ContactService {
         return ResponseEntity.ok().body("삭제되었습니다.");
     }
 
-    public ResponseEntity<?> deleteByUser(User user){
+    public ResponseEntity<?> deleteByUser(User user) {
 
-        if(contactRepository.deleteByUser(user).getStatusCode() == HttpStatus.OK){
-            return ResponseEntity.ok().body(user.getUserId()+ "로 등록된 contact 가 삭제되었습니다.");
+        if (contactRepository.deleteByUser(user).getStatusCode() == HttpStatus.OK) {
+            return ResponseEntity.ok().body(user.getUserId() + "로 등록된 contact 가 삭제되었습니다.");
 
         } else {
             return ResponseEntity.internalServerError().body("삭제 중 오류가 발생하였습니다.");

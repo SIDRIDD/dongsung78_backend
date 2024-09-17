@@ -38,7 +38,6 @@ public class CategoryService {
                     result.get(1, String.class),
                     result.get(2, String.class),
                     result.get(3, String.class)
-//                    result.get(3, String.class)
             );
 
             return categoryDto;

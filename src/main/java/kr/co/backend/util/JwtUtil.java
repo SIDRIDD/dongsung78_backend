@@ -1,4 +1,3 @@
-// JwtUtil.java
 package kr.co.backend.util;
 
 import io.jsonwebtoken.*;

@@ -5,7 +5,6 @@ import kr.co.backend.domain.Address;
 import kr.co.backend.domain.User;
 import kr.co.backend.dto.User.AddressDto;
 import kr.co.backend.dto.User.UserUpdateDto;
-import kr.co.backend.repository.ContactRepository;
 import kr.co.backend.repository.UserRepository;
 import kr.co.backend.dto.User.UserSaveDto;
 import lombok.RequiredArgsConstructor;
@@ -40,11 +39,6 @@ public class UserService {
         return ResponseEntity.ok().body("저장되었습니다.");
 
     }
-
-    public User findByName(String userName) {
-        return userRepository.findByName(userName).get();
-    }
-
 
     public ResponseEntity<?> update(UserUpdateDto userUpdateDto) {
         try {

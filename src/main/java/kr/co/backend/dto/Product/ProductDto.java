@@ -1,4 +1,4 @@
-package kr.co.backend.dto;
+package kr.co.backend.dto.Product;
 
 import kr.co.backend.domain.Category;
 import kr.co.backend.domain.Product;
@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 
 
 @AllArgsConstructor @NoArgsConstructor

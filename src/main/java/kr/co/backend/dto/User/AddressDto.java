@@ -18,7 +18,4 @@ public class AddressDto {
         return new Address(this.roadAddress, this.detailAddress, this.zipcode);
     }
 
-    public static AddressDto fromEntity(Address address) {
-        return new AddressDto(address.getRoadAddress(), address.getDetailAddress(), address.getZipcode());
-    }
 }

@@ -1,4 +1,3 @@
-// JwtAuthenticationFilter.java
 package kr.co.backend.filter;
 
 import jakarta.servlet.http.Cookie;
@@ -91,9 +90,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 logger.error("JWT token parsing failed", e);
             }
         }
-//        else {
-//            logger.warn("JWT token is missing in cookies");
-//        }
 
         try {
             chain.doFilter(request, response);

@@ -40,9 +40,6 @@ public class OrderProduct {
         getProduct().addStock(count);
     }
 
-    public int getTotalPrice(){
-        return getOrderPrice() * getCount();
-    }
 
 
 }

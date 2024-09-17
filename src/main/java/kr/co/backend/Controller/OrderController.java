@@ -2,8 +2,7 @@ package kr.co.backend.Controller;
 
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import kr.co.backend.dto.OrderDto;
+import kr.co.backend.dto.Order.OrderDto;
 import kr.co.backend.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

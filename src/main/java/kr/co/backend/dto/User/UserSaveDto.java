@@ -3,15 +3,13 @@ package kr.co.backend.dto.User;
 import jakarta.persistence.PrePersist;
 import kr.co.backend.domain.Role;
 import kr.co.backend.domain.User;
-import kr.co.backend.dto.OrderDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @AllArgsConstructor
 @NoArgsConstructor

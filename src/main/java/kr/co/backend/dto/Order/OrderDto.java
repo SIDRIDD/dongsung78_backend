@@ -1,14 +1,10 @@
-package kr.co.backend.dto;
+package kr.co.backend.dto.Order;
 
-import kr.co.backend.domain.Address;
-import kr.co.backend.domain.Order;
-import kr.co.backend.domain.User;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor

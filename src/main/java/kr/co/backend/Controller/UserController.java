@@ -5,7 +5,6 @@ import jakarta.annotation.Nullable;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.co.backend.domain.Delivery;
 import kr.co.backend.domain.Role;
 import kr.co.backend.domain.User;
 import kr.co.backend.dto.User.*;
@@ -14,15 +13,10 @@ import kr.co.backend.service.AuthService;
 import kr.co.backend.service.UserService;
 import kr.co.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +28,6 @@ public class UserController {
     private final AuthService authService;
     private final JwtUtil jwtUtil;
 
-    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/save")
     public ResponseEntity<String> save(@RequestBody UserSaveDto userDto) {
@@ -97,7 +90,6 @@ public class UserController {
         else return Boolean.FALSE;
     }
 
-    //    @GetMapping("/check")
     @GetMapping("/refresh-check")
     public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "refreshToken", required = false) @Nullable String token, HttpServletResponse response) {
         if(token == null){

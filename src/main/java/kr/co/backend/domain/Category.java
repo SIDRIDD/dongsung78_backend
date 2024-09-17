@@ -24,5 +24,4 @@ public class Category {
 
     private String imgUrl;
 
-    // Getters and Setters
 }

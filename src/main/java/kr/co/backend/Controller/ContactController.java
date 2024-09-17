@@ -2,9 +2,7 @@ package kr.co.backend.Controller;
 
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import kr.co.backend.domain.ContactComment;
-import kr.co.backend.domain.User;
+
 import kr.co.backend.dto.Contact.*;
 import kr.co.backend.service.ContactService;
 import kr.co.backend.service.UserService;
@@ -22,7 +20,6 @@ public class ContactController {
 
     private final ContactService contactService;
 
-    private final UserService userService;
 
     @GetMapping("/getall")
     public Page<ContactGetAllDto> get(@PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable,

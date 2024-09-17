@@ -14,5 +14,4 @@ public class CommentRequestDto {
     private String content;
     private String userName;
 
-    // getters and setters
 }

@@ -8,7 +8,7 @@ import kr.co.backend.repository.ProductRepository;
 import kr.co.backend.domain.Category;
 import kr.co.backend.domain.Product;
 import kr.co.backend.dto.Product.ProductGetDto;
-import kr.co.backend.dto.ProductDto;
+import kr.co.backend.dto.Product.ProductDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

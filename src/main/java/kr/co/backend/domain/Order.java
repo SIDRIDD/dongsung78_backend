@@ -1,11 +1,7 @@
 package kr.co.backend.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import kr.co.backend.repository.OrderProductRepository;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -49,11 +45,6 @@ public class Order {
         user.getOrders().add(this);
     }
 
-    public void addOrderProduct(OrderProduct orderProduct){
-        orderProducts.add(orderProduct);
-        orderProduct.setOrder(this);
-    }
-
     public void setDelivery(Delivery delivery){
         this.delivery = delivery;
         delivery.setOrder(this);
@@ -81,14 +72,5 @@ public class Order {
         for(OrderProduct orderProduct : orderProducts){
             orderProduct.cancel();
         }
-    }
-
-    public int getTotalPrice(){
-        int totalPrice = 0;
-        for(OrderProduct orderProduct : orderProducts){
-            totalPrice += orderProduct.getTotalPrice();
-        }
-
-        return totalPrice;
     }
 }

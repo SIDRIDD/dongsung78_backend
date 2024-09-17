@@ -11,8 +11,8 @@ spring:
     time-zone: Asia/Seoul
 
 naver:
-  client-id: 'FvadT3Ycf51hJ7DHEqk2'
-  client-secret: 'jF2MwAHiTa'
+  client-id: FvadT3Ycf51hJ7DHEqk2
+  client-secret: jF2MwAHiTa
   scope: name,email,nickname
   client-name: Naver
   authorization-grant-type: authorization_code
@@ -26,13 +26,16 @@ provider:
     user-name-attribute: response
 
 kakao:
-  client-id: "1ea96dd040d59d0fe987f530c4755afb"
+  client-id: 1ea96dd040d59d0fe987f530c4755afb
   redirect-uri: http://localhost:8080/oauth/kakao/redirect
 
 cors:
   allowedOrigins:
-   - http://localhost:3000
+    - http://localhost:3000
 
 jwt:
-  secret: 6c6a4b2c6d4e7f7d2c6f7b8c7a6d6e5f7d2b7c5e4d3f2b6d7f2b4a6d5e3f2b6c6c6a4b2c6d4e7f7d2c6f7b8c7a6d6e5f7d2b7c5e4d3f2b6d7f2b4a6d5e3f2b6c
-  expiration: 86400000  # 1 day in milliseconds
+  secret: 6c6a4b2c6d4e7f7d2c6f7b8c7a6d6e5f7d2b7c5e4d3f2b6d7f2b4a6d5e3f2b6c
+  expiration: 86400000
+
+frontend:
+  url: http://localhost:3000

@@ -3,9 +3,8 @@ package kr.co.backend.Controller;
 
 import jakarta.annotation.Nullable;
 import kr.co.backend.dto.Product.ProductGetDto;
-import kr.co.backend.dto.ProductDto;
+import kr.co.backend.dto.Product.ProductDto;
 import kr.co.backend.service.ProductService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

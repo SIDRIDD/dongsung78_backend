@@ -4,7 +4,6 @@ import kr.co.backend.domain.Role;
 import kr.co.backend.domain.User;
 import kr.co.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

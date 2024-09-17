@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.sql.results.graph.Fetch;
-
 import java.time.LocalDateTime;
 
 
@@ -38,5 +36,4 @@ public class Payment {
             this.paymentDate = LocalDateTime.now();
         }
     }
-    // Getters and Setters
 }
