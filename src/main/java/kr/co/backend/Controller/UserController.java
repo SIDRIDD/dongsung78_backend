@@ -14,6 +14,7 @@ import kr.co.backend.service.AuthService;
 import kr.co.backend.service.UserService;
 import kr.co.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -175,6 +176,47 @@ public class UserController {
         }
 
         return oldDeliveryDto;
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> delete(HttpServletRequest request, HttpServletResponse response){
+        String jwt = "";
+        String userName = "";
+        User user = null;
+        Cookie[] cookies = request.getCookies();
+
+        for (Cookie cookie : cookies) {
+            if ("token".equals(cookie.getName())) {
+                jwt = cookie.getValue();
+
+                userName = jwtUtil.getUserNameFromToken(jwt);
+
+
+                user = userRepository.findByName(userName).orElseThrow(() -> new RuntimeException("토큰이 유효하지 않습니다.")); //유저가 없다고 해야되는건지 토큰이 유효하지 않다고 해야 하는건지 헷갈림
+            }
+        }
+
+        Cookie accessTokenCookie = new Cookie("token", null);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setMaxAge(0); // 쿠키를 즉시 만료시킴
+//        accessTokenCookie.setSecure(true); // HTTPS에서만 전송
+
+        // refreshToken 쿠키 삭제
+        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setMaxAge(0); // 쿠키를 즉시 만료시킴
+//        refreshTokenCookie.setSecure(true);
+
+
+        // 쿠키를 응답에 추가해 브라우저에서 삭제되도록 함
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
+
+        Object message = userService.delete(user).getBody();
+
+        return ResponseEntity.ok().body(message);
     }
 
 }

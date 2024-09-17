@@ -15,6 +15,7 @@ import kr.co.backend.domain.Contact;
 import kr.co.backend.repository.UserRepository;
 import kr.co.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.hibernate.sql.ForUpdateFragment;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -234,6 +235,17 @@ public class ContactService {
 
         contactCommentRepository.deleteById(commentsId);
         return ResponseEntity.ok().body("삭제되었습니다.");
+    }
+
+    public ResponseEntity<?> deleteByUser(User user){
+
+        if(contactRepository.deleteByUser(user).getStatusCode() == HttpStatus.OK){
+            return ResponseEntity.ok().body(user.getUserId()+ "로 등록된 contact 가 삭제되었습니다.");
+
+        } else {
+            return ResponseEntity.internalServerError().body("삭제 중 오류가 발생하였습니다.");
+        }
+
     }
 }
 

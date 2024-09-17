@@ -5,9 +5,11 @@ import kr.co.backend.domain.Address;
 import kr.co.backend.domain.User;
 import kr.co.backend.dto.User.AddressDto;
 import kr.co.backend.dto.User.UserUpdateDto;
+import kr.co.backend.repository.ContactRepository;
 import kr.co.backend.repository.UserRepository;
 import kr.co.backend.dto.User.UserSaveDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,10 @@ public class UserService {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final ContactService contactService;
+
+    private final OrderService orderService;
 
     public ResponseEntity<String> save(UserSaveDto userDto) {
         if (userRepository.existsByName(userDto.getName())) {
@@ -81,5 +87,24 @@ public class UserService {
                 .build();
 
         return userUpdateDto;
+    }
+
+    public ResponseEntity<?> delete(User user) {
+        if(user == null){
+            return ResponseEntity.badRequest().body("존재하지 않는 유저입니다.");
+        } else {
+            try {
+                contactService.deleteByUser(user);
+                userRepository.deleteById(user.getUserId());
+                if(orderService.deleteOrder(user).getStatusCode() == HttpStatus.OK){
+                    return ResponseEntity.ok().body("회원정보가 삭제되었습니다.");
+
+                } else {
+                    return orderService.deleteOrder(user);
+                }
+            } catch (Exception e){
+                return ResponseEntity.internalServerError().body("삭제 중 오류가 발생하였습니다.");
+            }
+        }
     }
 }

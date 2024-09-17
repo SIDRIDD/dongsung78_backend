@@ -13,6 +13,9 @@ import kr.co.backend.repository.ProductRepository;
 import kr.co.backend.repository.UserRepository;
 import kr.co.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,6 +115,14 @@ public class OrderService {
         }
 
         return userName;
+    }
+
+    public ResponseEntity<?> deleteOrder(User user){
+        if(orderRepository.deleteByUser(user).getStatusCode() == HttpStatus.OK){
+            return ResponseEntity.ok().body("주문이 삭제되었습니다.");
+        } else {
+            return orderRepository.deleteByUser(user);
+        }
     }
 
     /**
