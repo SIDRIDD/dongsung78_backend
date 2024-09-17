@@ -25,8 +25,8 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-/application.yml
-/application-*.yml
+/src/main/resources/application.yml  # resources 디렉토리 하위의 application.yml을 무시
+/src/main/resources/application-*.yml
 
 ### NetBeans ###
 /nbproject/private/
